@@ -206,6 +206,13 @@ export class EditMenu extends Menu {
         },
         enabled: this.source.hasProps()
       });
+
+      if (this.source.type === 'browser_source') {
+        this.append({
+          label: $t('Interact'),
+          click: () => this.sourcesService.showInteractWindow(this.source.sourceId)
+        });
+      }
     }
 
     if (!this.options.showSceneItemMenu && !this.source) {
