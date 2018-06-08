@@ -159,6 +159,42 @@ export class Source implements ISourceApi {
   }
 
   /**
+   * Used for browser source interaction
+   * @param pos the position in source space
+   */
+  mouseMove(pos: IVec2) {
+    this.getObsInput().sendMouseMove({
+      modifiers: 0,
+      x: Math.floor(pos.x),
+      y: Math.floor(pos.y)
+    }, false);
+  }
+
+  /**
+   * Used for browser source interaction
+   * @param pos the position in source space
+   */
+  mouseClick(button: number, pos: IVec2, mouseUp: boolean) {
+    let obsFlags: obs.EInteractionFlags;
+    let obsButton: obs.EMouseButtonType;
+
+    if (button === 0) {
+      obsFlags = obs.EInteractionFlags.MouseLeft;
+      obsButton = obs.EMouseButtonType.Left;
+    } else if (button === 1) {
+      obsFlags = obs.EInteractionFlags.MouseMiddle;
+      obsButton = obs.EMouseButtonType.Middle;
+    } else if (button === 2) {
+      obsFlags = obs.EInteractionFlags.MouseRight;
+      obsButton = obs.EMouseButtonType.Right;
+    }
+
+    this.getObsInput().sendMouseClick({
+      modifiers: obsFlags,
+      x: Math.floor(pos.x),
+      y: Math.floor(pos.y)
+    }, obsButton, mouseUp, 1);
+  /**
    * works only for browser_source
    */
   refresh() {
@@ -167,6 +203,29 @@ export class Source implements ISourceApi {
       .buttonClicked(obsInput);
   }
 
+  mouseWheel(pos: IVec2, delta: IVec2) {
+    console.log(pos, delta);
+
+    this.getObsInput().sendMouseWheel(
+      {
+        modifiers: obs.EInteractionFlags.None,
+        x: Math.floor(pos.x),
+        y: Math.floor(pos.y)
+      },
+      0, // X scrolling is currently unsupported
+      Math.floor(delta.y) * -1
+    );
+  }
+
+  keyInput(key: string, keyup: boolean) {
+    this.getObsInput().sendKeyClick({
+      modifiers: 0,
+      text: key,
+      nativeModifiers: 0,
+      nativeScancode: 0,
+      nativeVkey: 0
+    }, keyup);
+  }
 
   @Inject()
   protected sourcesService: SourcesService;

@@ -40,6 +40,10 @@ export interface ISourceApi extends ISource {
   setPropertiesManagerSettings(settings: Dictionary<any>): void;
   hasProps(): boolean;
   setName(newName: string): void;
+  mouseMove(pos: IVec2): void;
+  mouseClick(buttons: number, pos: IVec2, mouseUp: boolean): void;
+  mouseWheel(pos: IVec2, delta: IVec2): void;
+  keyInput(key: string, keyup: boolean): void;
   refresh(): void;
 }
 

@@ -465,4 +465,23 @@ export class SourcesService extends StatefulService<ISourcesState> implements IS
     });
   }
 
+  /**
+   * Show a window for interacting with this source.
+   * This function does nothing if the source is not a browser source.
+   */
+  showInteractWindow(sourceId: string) {
+    const source = this.getSourceById(sourceId);
+
+    if (source.type !== 'browser_source') return;
+
+    this.windowsService.showWindow({
+      componentName: 'BrowserSourceInteraction',
+      queryParams: { sourceId },
+      size: {
+        width: 800,
+        height: 600
+      }
+    });
+  }
+
 }
