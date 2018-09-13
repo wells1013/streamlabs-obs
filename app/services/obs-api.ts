@@ -53,12 +53,4 @@ export class ObsApiService extends Service {
   selectSource(x: number, y: number) {
     nodeObs.OBS_content_selectSource(x, y);
   }
-
-  getObsProfiles(): string[] {
-    return nodeObs.OBS_API_getOBS_existingProfiles();
-  }
-
-  getObsSceneCollections(): string[] {
-    return nodeObs.OBS_API_getOBS_existingSceneCollections();
-  }
 }
