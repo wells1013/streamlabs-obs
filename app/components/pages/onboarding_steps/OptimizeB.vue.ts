@@ -49,6 +49,7 @@ export default class OptimizeB extends Vue {
         }
       } else if (progress.event === 'done') {
         this.done = true;
+        this.autoConfigService.end();
       }
     });
   }

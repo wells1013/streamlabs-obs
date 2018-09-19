@@ -106,5 +106,8 @@ export class AutoConfigService extends Service {
     return continentMap[code];
   }
 
+  end() {
+    nodeObs.TerminateAutoConfig();
+  }
 
 }
