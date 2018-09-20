@@ -6,6 +6,7 @@ import { StreamingRecordingModule } from './modules/streaming-recording';
 import { AuthorizationModule } from './modules/authorization';
 import { ILoadedApp } from '..';
 import { ThemeModule } from './modules/theme';
+import { DisplayModule } from './modules/display';
 
 export class PlatformAppsApi {
 
@@ -19,6 +20,7 @@ export class PlatformAppsApi {
     this.registerModule(new StreamingRecordingModule());
     this.registerModule(new AuthorizationModule());
     this.registerModule(new ThemeModule());
+    this.registerModule(new DisplayModule());
   }
 
   private registerModule(module: Module) {
@@ -31,10 +33,10 @@ export class PlatformAppsApi {
    * replaced with a method that returns a rejected promise
    * explaining the lack of permissions.
    */
-  getApi(app: ILoadedApp, permissions: EApiPermissions[]) {
+  getApi(app: ILoadedApp, webContentsId: number, browserWindowId: number) {
     const api: Dictionary<TApiModule> = {};
 
-    const context: IApiContext = { app };
+    const context: IApiContext = { app, webContentsId, browserWindowId };
 
     Object.keys(this.modules).forEach(moduleName => {
       api[moduleName] = {};
@@ -43,7 +45,7 @@ export class PlatformAppsApi {
 
       // TODO this is a weird pattern
       for (let permission of this.modules[moduleName].permissions) {
-        authorized = permissions.includes(permission);
+        authorized = app.manifest.permissions.includes(permission);
         if (!authorized) break;
       }
 

@@ -1,11 +1,8 @@
 import Vue from 'vue';
 import { Component, Prop, Watch } from 'vue-property-decorator';
-import electron from 'electron';
 import { Inject } from 'util/injector';
 import { VideoService, Display as OBSDisplay } from 'services/video';
 import { WindowsService } from 'services/windows';
-
-const { remote } = electron;
 
 @Component({})
 export default class Display extends Vue {

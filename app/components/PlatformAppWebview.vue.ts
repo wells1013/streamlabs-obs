@@ -52,7 +52,11 @@ export default class PlatformAppWebview extends Vue {
       // is destroyed and it is replaced with another one.
       const webContents = this.$refs.appView.getWebContents();
 
-      this.platformAppsService.exposeAppApi(this.appId, webContents.id);
+      this.platformAppsService.exposeAppApi(
+        this.appId,
+        webContents.id,
+        electron.remote.getCurrentWindow().id
+      );
 
       /**
        * This has to be done from the main process to work properly

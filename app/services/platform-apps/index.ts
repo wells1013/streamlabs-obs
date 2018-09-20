@@ -341,9 +341,9 @@ export class PlatformAppsService extends
     });
   }
 
-  exposeAppApi(appId: string, webContentsId: number) {
+  exposeAppApi(appId: string, webContentsId: number, browserWindowId: number) {
     const app = this.getApp(appId);
-    const api = this.apiManager.getApi(app, app.manifest.permissions);
+    const api = this.apiManager.getApi(app, webContentsId, browserWindowId);
 
     // Namespace under v1 for now.  Eventually we may want to add
     // a v2 API.

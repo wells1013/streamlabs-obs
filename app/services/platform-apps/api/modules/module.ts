@@ -4,12 +4,15 @@ export enum EApiPermissions {
   ScenesSources = 'slobs.scenes-sources',
   ObsSettings = 'slobs.obs-settings',
   Streaming = 'slobs.streaming',
-  Authorization = 'slobs.authorization'
+  Authorization = 'slobs.authorization',
+  DisplayEmbed = 'slobs.display-embed'
 }
 
 // TODO: What else should be included here?
 export interface IApiContext {
   app: ILoadedApp;
+  webContentsId: number;
+  browserWindowId: number;
 }
 
 type TApiHandler = (context: IApiContext, ...args: any[]) => Promise<any>;

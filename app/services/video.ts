@@ -14,6 +14,9 @@ const { remote } = electron;
 const DISPLAY_ELEMENT_POLLING_INTERVAL = 500;
 
 export interface IDisplayOptions {
+  // A handle to the window to create the display in.  If not provided,
+  // current window will be used.
+  windowHandle?: Buffer;
   sourceId?: string;
   paddingSize?: number;
 }
@@ -41,7 +44,7 @@ export class Display {
   private selectionSubscription: Subscription;
 
   sourceId: string;
-  
+
   boundDestroy: any;
   boundClose: any;
   displayDestroyed: boolean;
@@ -53,13 +56,13 @@ export class Display {
 
     if (this.sourceId) {
       nodeObs.OBS_content_createSourcePreviewDisplay(
-        remote.getCurrentWindow().getNativeWindowHandle(),
+        options.windowHandle || remote.getCurrentWindow().getNativeWindowHandle(),
         this.sourceId,
         name
       );
     } else {
       nodeObs.OBS_content_createDisplay(
-        remote.getCurrentWindow().getNativeWindowHandle(),
+        options.windowHandle || remote.getCurrentWindow().getNativeWindowHandle(),
         name
       );
     }
