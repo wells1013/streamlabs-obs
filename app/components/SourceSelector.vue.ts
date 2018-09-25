@@ -28,7 +28,7 @@ const widgetIconMap = {
   [WidgetType.BitGoal]: 'fas fa-calendar',
   [WidgetType.FollowerGoal]: 'fas fa-calendar',
   [WidgetType.MediaShare]: 'icon-share',
-  [WidgetType.Chatbot]: 'fas fa-comments'
+  // [WidgetType.Chatbot]: 'fas fa-comments'
 };
 
 const sourceIconMap = {
@@ -46,7 +46,7 @@ const sourceIconMap = {
   scene: 'far fa-object-group',
   color_source: 'fas fa-fill',
   openvr_capture: 'fab fa-simplybuilt fa-rotate-180',
-  liv_capture: 'fab fa-simplybuilt fa-rotate-180',
+  liv_capture: 'fab fa-simplybuilt fa-rotate-180'
 };
 
 @Component({
