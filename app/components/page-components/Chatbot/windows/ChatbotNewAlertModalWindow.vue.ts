@@ -7,11 +7,12 @@ import TextAreaInput from 'components/shared/inputs/TextAreaInput.vue';
 import ListInput from 'components/shared/inputs/ListInput.vue';
 import NumberInput from 'components/shared/inputs/NumberInput.vue';
 import { $t } from 'services/i18n';
+import ValidatedForm from 'components/shared/inputs/ValidatedForm.vue';
 import {
   IListMetadata,
   ITextMetadata,
   INumberMetadata,
-  EInputType,
+  EInputType
 } from 'components/shared/inputs/index';
 
 import {
@@ -25,50 +26,50 @@ interface INewAlertMetadata {
     newMessage: {
       message: ITextMetadata;
     };
-  },
+  };
   sub: {
     newMessage: {
       tier: IListMetadata<string>;
       amount: INumberMetadata;
       message: ITextMetadata;
       is_gifted: IListMetadata<boolean>;
-    }
-  },
+    };
+  };
   tip: {
     newMessage: {
       amount: INumberMetadata;
       message: ITextMetadata;
-    }
-  },
+    };
+  };
   host: {
     newMessage: {
       amount: INumberMetadata;
       message: ITextMetadata;
-    }
-  },
+    };
+  };
   raid: {
     newMessage: {
       amount: INumberMetadata;
       message: ITextMetadata;
-    }
-  },
+    };
+  };
   bits: {
     newMessage: {
       amount: INumberMetadata;
       message: ITextMetadata;
-    }
-  },
+    };
+  };
   sub_mystery_gift: {
     newMessage: {
       tier: IListMetadata<string>;
       amount: INumberMetadata;
       message: ITextMetadata;
-    }
-  }
+    };
+  };
 }
 
 interface INewAlertData {
-  [id: string] : {
+  [id: string]: {
     newMessage: IAlertMessage;
   };
   follow: {
@@ -91,7 +92,7 @@ interface INewAlertData {
   };
   sub_mystery_gift: {
     newMessage: IAlertMessage;
-  }
+  };
 }
 
 @Component({
@@ -99,23 +100,29 @@ interface INewAlertData {
     TextInput,
     TextAreaInput,
     ListInput,
-    NumberInput
+    NumberInput,
+    ValidatedForm
   }
 })
 export default class ChatbotNewAlertModalWindow extends ChatbotAlertsBase {
-  @Prop()
-  selectedType: ChatbotAlertType;
+  @Prop() selectedType: ChatbotAlertType;
+
+  $refs: {
+    form: ValidatedForm;
+  };
 
   onSubmitHandler: Function = () => {};
 
   newAlert: INewAlertData = cloneDeep(this.initialNewAlertState);
+
+  isEdit = false;
 
   get NEW_ALERT_MODAL_ID() {
     return NEW_ALERT_MODAL_ID;
   }
 
   get title() {
-    return `New ${this.selectedType} Alert`;
+    return `${this.isEdit ? 'Edit' : 'New'} ${this.selectedType} Alert`;
   }
 
   get isDonation() {
@@ -276,9 +283,9 @@ export default class ChatbotNewAlertModalWindow extends ChatbotAlertsBase {
             type: EInputType.textArea,
             required: true,
             placeholder: $t('Message to subscriber')
-          },
+          }
         }
-      },
+      }
     };
     return metadata;
   }
@@ -328,7 +335,7 @@ export default class ChatbotNewAlertModalWindow extends ChatbotAlertsBase {
           message: null,
           tier: $t('Prime')
         }
-      },
+      }
     };
     return initialState;
   }
@@ -337,8 +344,10 @@ export default class ChatbotNewAlertModalWindow extends ChatbotAlertsBase {
     const { onSubmitHandler, editedAlert } = event.params;
     this.onSubmitHandler = onSubmitHandler;
     if (editedAlert) {
+      this.isEdit = true;
       this.newAlert[this.selectedType].newMessage = cloneDeep(editedAlert);
     } else {
+      this.isEdit = false;
       this.newAlert = cloneDeep(this.initialNewAlertState);
     }
   }
@@ -347,7 +356,8 @@ export default class ChatbotNewAlertModalWindow extends ChatbotAlertsBase {
     this.$modal.hide(NEW_ALERT_MODAL_ID);
   }
 
-  onSubmit() {
+  async onSubmit() {
+    if (await this.$refs.form.validateAndGetErrorsCount()) return;
     this.onSubmitHandler(this.newAlert[this.selectedType].newMessage);
   }
 }

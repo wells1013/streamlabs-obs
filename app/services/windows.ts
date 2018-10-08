@@ -4,6 +4,7 @@ import { cloneDeep } from 'lodash';
 
 import Main from 'components/windows/Main.vue';
 import Settings from 'components/windows/Settings.vue';
+import FFZSettings from 'components/windows/FFZSettings.vue';
 import SourcesShowcase from 'components/windows/SourcesShowcase.vue';
 import SceneTransitions from 'components/windows/SceneTransitions.vue';
 import AddSource from 'components/windows/AddSource.vue';
@@ -31,6 +32,7 @@ import { Subject } from 'rxjs/Subject';
 
 import BitGoal from 'components/widgets/goal/BitGoal.vue';
 import DonationGoal from 'components/widgets/goal/DonationGoal.vue';
+import SubGoal from 'components/widgets/goal/SubGoal.vue';
 import ChatBox from 'components/widgets/ChatBox.vue';
 import FollowerGoal from 'components/widgets/goal/FollowerGoal.vue';
 import ViewerCount from 'components/widgets/ViewerCount.vue';
@@ -44,21 +46,14 @@ import ChatbotDefaultCommandWindow from 'components/page-components/Chatbot/wind
 import ChatbotTimerWindow from 'components/page-components/Chatbot/windows/ChatbotTimerWindow.vue';
 import ChatbotAlertsWindow from 'components/page-components/Chatbot/windows/ChatbotAlertsWindow.vue';
 import ChatbotCapsProtectionWindow from 'components/page-components/Chatbot/windows/ChatbotCapsProtectionWindow.vue';
-import ChatbotSymbolProtectionWindow
-  from 'components/page-components/Chatbot/windows/ChatbotSymbolProtectionWindow.vue';
-import ChatbotLinkProtectionWindow
-  from 'components/page-components/Chatbot/windows/ChatbotLinkProtectionWindow.vue';
-import ChatbotWordProtectionWindow
-  from 'components/page-components/Chatbot/windows/ChatbotWordProtectionWindow.vue';
+import ChatbotSymbolProtectionWindow from 'components/page-components/Chatbot/windows/ChatbotSymbolProtectionWindow.vue';
+import ChatbotLinkProtectionWindow from 'components/page-components/Chatbot/windows/ChatbotLinkProtectionWindow.vue';
+import ChatbotWordProtectionWindow from 'components/page-components/Chatbot/windows/ChatbotWordProtectionWindow.vue';
 import ChatbotQuoteWindow from 'components/page-components/Chatbot/windows/ChatbotQuoteWindow.vue';
-import ChatbotQuotePreferencesWindow
-  from 'components/page-components/Chatbot/windows/ChatbotQuotePreferencesWindow.vue';
-import ChatbotQueuePreferencesWindow
-  from 'components/page-components/Chatbot/windows/ChatbotQueuePreferencesWindow.vue';
-import ChatbotSongRequestPreferencesWindow
-  from 'components/page-components/Chatbot/windows/ChatbotSongRequestPreferencesWindow.vue';
-import ChatbotSongRequestOnboardingWindow
-  from 'components/page-components/Chatbot/windows/ChatbotSongRequestOnboardingWindow.vue';
+import ChatbotQuotePreferencesWindow from 'components/page-components/Chatbot/windows/ChatbotQuotePreferencesWindow.vue';
+import ChatbotQueuePreferencesWindow from 'components/page-components/Chatbot/windows/ChatbotQueuePreferencesWindow.vue';
+import ChatbotSongRequestPreferencesWindow from 'components/page-components/Chatbot/windows/ChatbotSongRequestPreferencesWindow.vue';
+import ChatbotSongRequestOnboardingWindow from 'components/page-components/Chatbot/windows/ChatbotSongRequestOnboardingWindow.vue';
 
 import TipJar from 'components/widgets/TipJar.vue';
 import SponsorBanner from 'components/widgets/SponsorBanner.vue';
@@ -75,6 +70,7 @@ export function getComponents() {
   return {
     Main,
     Settings,
+    FFZSettings,
     SceneTransitions,
     SourcesShowcase,
     RenameSource,
@@ -106,6 +102,7 @@ export function getComponents() {
     TipJar,
     SponsorBanner,
     StreamBoss,
+    SubGoal,
     MediaShare,
 
     ChatbotCustomCommandWindow,
@@ -120,10 +117,9 @@ export function getComponents() {
     ChatbotQuotePreferencesWindow,
     ChatbotQueuePreferencesWindow,
     ChatbotSongRequestPreferencesWindow,
-    ChatbotSongRequestOnboardingWindow,
+    ChatbotSongRequestOnboardingWindow
   };
 }
-
 
 export interface IWindowOptions {
   componentName: string;
@@ -138,7 +134,7 @@ export interface IWindowOptions {
   center?: boolean;
   isPreserved?: boolean;
   preservePrevWindow?: boolean;
-  prevWindowOptions? : IWindowOptions;
+  prevWindowOptions?: IWindowOptions;
 }
 
 interface IWindowsState {
@@ -152,7 +148,6 @@ const DEFAULT_WINDOW_OPTIONS: IWindowOptions = {
 };
 
 export class WindowsService extends StatefulService<IWindowsState> {
-
   /**
    * 'main' and 'child' are special window ids that always exist
    * and have special purposes.  All other windows ids are considered
@@ -176,9 +171,8 @@ export class WindowsService extends StatefulService<IWindowsState> {
   // top level components in new child windows.
   components = getComponents();
 
-  windowUpdated = new Subject<{windowId: string, options: IWindowOptions}>();
+  windowUpdated = new Subject<{ windowId: string; options: IWindowOptions }>();
   private windows: Dictionary<Electron.BrowserWindow> = {};
-
 
   init() {
     const windows = BrowserWindow.getAllWindows();
@@ -202,7 +196,9 @@ export class WindowsService extends StatefulService<IWindowsState> {
   showWindow(options: Partial<IWindowOptions>) {
     // Don't center the window if it's the same component
     // This prevents "snapping" behavior when navigating settings
-    if (options.componentName !== this.state.child.componentName) options.center = true;
+    if (options.componentName !== this.state.child.componentName) {
+      options.center = true;
+    }
 
     ipcRenderer.send('window-showChildWindow', options);
     this.updateChildWindowOptions(options);
@@ -223,7 +219,6 @@ export class WindowsService extends StatefulService<IWindowsState> {
       return;
     }
 
-
     // This prevents you from seeing the previous contents
     // of the window for a split second after it is shown.
     this.updateChildWindowOptions({ componentName: '', isShown: false });
@@ -237,7 +232,6 @@ export class WindowsService extends StatefulService<IWindowsState> {
     remote.getCurrentWindow().close();
   }
 
-
   /**
    * Creates a one-off window that will not impact or close
    * any existing windows, and will cease to exist when closed.
@@ -246,7 +240,10 @@ export class WindowsService extends StatefulService<IWindowsState> {
    * already exists, this function will focus the existing window instead.
    * @return the window id of the created window
    */
-  createOneOffWindow(options: Partial<IWindowOptions>, windowId?: string): string {
+  createOneOffWindow(
+    options: Partial<IWindowOptions>,
+    windowId?: string
+  ): string {
     windowId = windowId || uuid();
 
     if (this.windows[windowId]) {
@@ -257,12 +254,12 @@ export class WindowsService extends StatefulService<IWindowsState> {
 
     this.CREATE_ONE_OFF_WINDOW(windowId, options);
 
-    const newWindow = this.windows[windowId] = new BrowserWindow({
+    const newWindow = (this.windows[windowId] = new BrowserWindow({
       frame: false,
       width: (options.size && options.size.width) || 400,
       height: (options.size && options.size.height) || 400,
       title: options.title || 'New Window'
-    });
+    }));
 
     newWindow.setMenu(null);
     newWindow.on('closed', () => {
@@ -295,7 +292,6 @@ export class WindowsService extends StatefulService<IWindowsState> {
     });
   }
 
-
   // @ExecuteInCurrentWindow()
   getChildWindowOptions(): IWindowOptions {
     return this.state.child;
@@ -311,14 +307,18 @@ export class WindowsService extends StatefulService<IWindowsState> {
     return this.state[windowId].queryParams || {};
   }
 
-
   updateChildWindowOptions(optionsPatch: Partial<IWindowOptions>) {
-    const newOptions: IWindowOptions = { ...DEFAULT_WINDOW_OPTIONS, ...optionsPatch };
+    const newOptions: IWindowOptions = {
+      ...DEFAULT_WINDOW_OPTIONS,
+      ...optionsPatch
+    };
     if (newOptions.preservePrevWindow) {
       const currentOptions = cloneDeep(this.state.child);
 
       if (currentOptions.preservePrevWindow) {
-        throw new Error('You can\'t use preservePrevWindow option for more that 1 window in the row');
+        throw new Error(
+          "You can't use preservePrevWindow option for more that 1 window in the row"
+        );
       }
 
       newOptions.prevWindowOptions = currentOptions;
@@ -352,7 +352,10 @@ export class WindowsService extends StatefulService<IWindowsState> {
   }
 
   @mutation()
-  private CREATE_ONE_OFF_WINDOW(windowId: string, options: Partial<IWindowOptions>) {
+  private CREATE_ONE_OFF_WINDOW(
+    windowId: string,
+    options: Partial<IWindowOptions>
+  ) {
     const opts = {
       componentName: 'Blank',
       scaleFactor: 1,

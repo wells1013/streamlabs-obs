@@ -27,8 +27,8 @@ const widgetIconMap = {
   [WidgetType.DonationGoal]: 'fas fa-calendar',
   [WidgetType.BitGoal]: 'fas fa-calendar',
   [WidgetType.FollowerGoal]: 'fas fa-calendar',
-  [WidgetType.MediaShare]: 'icon-share',
-  // [WidgetType.Chatbot]: 'fas fa-comments'
+  [WidgetType.SubGoal]: 'fas fa-calendar',
+  [WidgetType.MediaShare]: 'icon-share'
 };
 
 const sourceIconMap = {
@@ -57,11 +57,15 @@ export default class SourceSelector extends Vue {
   @Inject() private sourcesService: SourcesService;
   @Inject() private selectionService: SelectionService;
 
-  sourcesTooltip = $t('The building blocks of your scene. Also contains widgets.');
+  sourcesTooltip = $t(
+    'The building blocks of your scene. Also contains widgets.'
+  );
   addSourceTooltip = $t('Add a new Source to your Scene. Includes widgets.');
   removeSourcesTooltip = $t('Remove Sources from your Scene.');
   openSourcePropertiesTooltip = $t('Open the Source Properties.');
-  addGroupTooltip = $t('Add a Group so you can move multiple Sources at the same time.');
+  addGroupTooltip = $t(
+    'Add a Group so you can move multiple Sources at the same time.'
+  );
 
   private expandedFoldersIds: string[] = [];
 
@@ -93,11 +97,19 @@ export default class SourceSelector extends Vue {
   }
 
   determineIcon(isLeaf: boolean, sourceId: string) {
-    if (!isLeaf) { return 'fa fa-folder'; }
-    const sourceDetails = this.sourcesService.getSource(sourceId).getComparisonDetails();
-    if (sourceDetails.isStreamlabel) { return 'fas fa-file-alt'; }
+    if (!isLeaf) {
+      return 'fa fa-folder';
+    }
+    const sourceDetails = this.sourcesService
+      .getSource(sourceId)
+      .getComparisonDetails();
+    if (sourceDetails.isStreamlabel) {
+      return 'fas fa-file-alt';
+    }
     // We want simple equality here to also check for undefined
-    if (sourceDetails.widgetType != null) { return widgetIconMap[sourceDetails.widgetType]; }
+    if (sourceDetails.widgetType != null) {
+      return widgetIconMap[sourceDetails.widgetType];
+    }
     return sourceIconMap[sourceDetails.type] || 'fas fa-file';
   }
 

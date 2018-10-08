@@ -4,21 +4,18 @@ import { $t } from 'services/i18n';
 import { ITab } from 'components/Tabs.vue';
 import { metadata as metadataHelper } from 'components/widgets/inputs';
 import { cloneDeep } from 'lodash';
-import {
-  IMediaShareBan
-} from 'services/widget-settings/media-share';
-import {
-  EInputType,
-} from 'components/shared/inputs/index';
+import { IMediaShareBan } from 'services/widget-settings/media-share';
+import { EInputType } from 'components/shared/inputs/index';
+import ValidatedForm from 'components/shared/inputs/ValidatedForm.vue';
 
-import {
-  ISongRequestPreferencesResponse,
-  ISongRequestData
-} from 'services/chatbot';
-
+import { ISongRequestData } from 'services/chatbot';
 
 @Component({})
-export default class ChatbotSongRequestPreferencesPreferencesWindow extends ChatbotWindowsBase {
+export default class ChatbotSongRequestPreferencesWindow extends ChatbotWindowsBase {
+  $refs: {
+    form: ValidatedForm;
+  };
+
   tabs: ITab[] = [
     {
       name: $t('General'),
@@ -54,9 +51,7 @@ export default class ChatbotSongRequestPreferencesPreferencesWindow extends Chat
     this.songRequestBannedMedia = cloneDeep(
       this.chatbotApiService.state.songRequestPreferencesResponse.banned_media
     );
-    this.songRequestData = cloneDeep(
-      this.songRequestResponse.settings
-    );
+    this.songRequestData = cloneDeep(this.songRequestResponse.settings);
   }
 
   get songRequestResponse() {
@@ -100,6 +95,8 @@ export default class ChatbotSongRequestPreferencesPreferencesWindow extends Chat
   }
 
   async onSaveHandler() {
+    if (await this.$refs.form.validateAndGetErrorsCount()) return;
+
     await this.chatbotApiService.updateSongRequest({
       ...this.songRequestResponse,
       settings: this.songRequestData

@@ -18,9 +18,10 @@
     <button
       @click="navigateChatBot"
       class="tab-button"
-      :class="{ active: page === 'Chatbot' }"
+      v-if="featureIsEnabled(availableFeatures.chatbot)"
+      :class="{ active: page === 'Chatbot'}"
       :disabled="!isUserLoggedIn || locked">
-      <i class="icon-chatbot"/> {{ $t('Chatbot') }}
+      <i class="icon-chatbot"/> <span>{{ $t('Chatbot') }}</span>
     </button>
     <button
       @click="navigateOverlays"
@@ -91,7 +92,7 @@
 <script lang="ts" src="./TopNav.vue.ts"></script>
 
 <style lang="less">
-@import "../styles/index";
+@import '../styles/index';
 
 .top-nav-item {
   .margin-left(2);
@@ -107,9 +108,9 @@
   }
 
   &.top-nav-item--active {
-    >a {
-      >i,
-      >span {
+    > a {
+      > i,
+      > span {
         color: @teal;
       }
     }
@@ -118,15 +119,14 @@
 </style>
 
 <style lang="less" scoped>
-@import "../styles/index";
-
+@import '../styles/index';
 .top-nav {
   display: flex;
   flex-direction: row;
   align-items: center;
   .padding-h-sides(2);
   position: relative;
-  max-width:  none;
+  max-width: none;
   background-color: @day-secondary;
   border-bottom: 1px solid @day-border;
   flex: 0 0 48px;
@@ -142,7 +142,7 @@
 }
 
 .link {
-  @media(max-width: 1500px) {
+  @media (max-width: 1500px) {
     span {
       display: none;
     }
@@ -218,7 +218,7 @@
   }
 
   .theme-toggle__bg {
-    background-color: rgba(255, 255, 255, .2);
+    background-color: rgba(255, 255, 255, 0.2);
   }
 
   .theme-toggle__icon--moon {

@@ -27,9 +27,8 @@ export enum WidgetType {
   SpinWheel = 12,
   SponsorBanner = 13,
   MediaShare = 14,
-  // Chatbot = 15
+  SubGoal = 15
 }
-
 
 export const WidgetTesters: IWidgetTester[] = [
   {
@@ -162,7 +161,22 @@ export const WidgetDefinitions: { [x: number]: IWidget } = {
     x: 0,
     y: 1,
 
-    anchor: AnchorPoint.SouthWest,
+    anchor: AnchorPoint.SouthWest
+  },
+
+  [WidgetType.SubGoal]: {
+    name: 'Sub Goal',
+    url(host, token) {
+      return `https://${host}/widgets/sub-goal?token=${token}`;
+    },
+
+    width: 600,
+    height: 200,
+
+    x: 0,
+    y: 1,
+
+    anchor: AnchorPoint.SouthWest
   },
 
   [WidgetType.BitGoal]: {
@@ -177,7 +191,7 @@ export const WidgetDefinitions: { [x: number]: IWidget } = {
     x: 0,
     y: 1,
 
-    anchor: AnchorPoint.SouthWest,
+    anchor: AnchorPoint.SouthWest
   },
 
   [WidgetType.DonationTicker]: {
@@ -328,24 +342,12 @@ export const WidgetDefinitions: { [x: number]: IWidget } = {
     y: 0,
 
     anchor: AnchorPoint.North
-  },
-  // [WidgetType.Chatbot]: {
-  //   name: 'Chatbot',
-  //   url(host, token) {
-  //     return `https://${host}/widgets/chatbot/v1/${token}`;
-  //   },
-
-  //   width: 800,
-  //   height: 600,
-
-  //   x: 0.5,
-  //   y: 0,
-
-  //   anchor: AnchorPoint.North
-  // }
+  }
 };
 
-export const WidgetDisplayData = (): { [x: number]: IWidgetDisplayData } => ({
+export const WidgetDisplayData = (
+  platform?: string
+): { [x: number]: IWidgetDisplayData } => ({
   [WidgetType.AlertBox]: {
     name: $t('Alertbox'),
     description: $t('Thanks viewers with notification popups.'),
@@ -372,10 +374,7 @@ export const WidgetDisplayData = (): { [x: number]: IWidgetDisplayData } => ({
     demoVideo: false,
     demoFilename: 'source-follower-goal.png',
     platforms: new Set(['twitch', 'mixer']),
-    supportList: [
-      $t('Twitch Follows'),
-      $t('Mixer Follows')
-    ]
+    supportList: [$t('Twitch Follows'), $t('Mixer Follows')]
   },
   [WidgetType.SubscriberGoal]: {
     name: $t('Subscription Goal'),
@@ -384,6 +383,18 @@ export const WidgetDisplayData = (): { [x: number]: IWidgetDisplayData } => ({
     demoFilename: 'source-follower-goal.png',
     supportList: [$t('Youtube Subscribers')],
     platforms: new Set(['youtube'])
+  },
+  [WidgetType.SubGoal]: {
+    name: platform === 'youtube' ? $t('Member Goal') : $t('Subscription Goal'),
+    description: $t('Set a goal for your viewers to help you reach.'),
+    demoVideo: false,
+    demoFilename: 'source-follower-goal.png',
+    supportList: [
+      $t('Twitch Subscribers'),
+      $t('Youtube Members'),
+      $t('Mixer Subscriptions')
+    ],
+    platforms: new Set(['twitch', 'youtube', 'mixer'])
   },
   [WidgetType.BitGoal]: {
     name: $t('Bit Goal'),
@@ -402,18 +413,16 @@ export const WidgetDisplayData = (): { [x: number]: IWidgetDisplayData } => ({
   },
   [WidgetType.ChatBox]: {
     name: $t('Chatbox'),
-    description: $t('Include your channel\'s chat into your stream.'),
+    description: $t("Include your channel's chat into your stream."),
     demoVideo: true,
     demoFilename: 'source-chatbox.mp4',
-    supportList: [
-      $t('Twitch chat'),
-      $t('Youtube chat'),
-      $t('Mixer chat')
-    ]
+    supportList: [$t('Twitch chat'), $t('Youtube chat'), $t('Mixer chat')]
   },
   [WidgetType.EventList]: {
     name: $t('Event List'),
-    description: $t('Include your channel\'s most recent events into your stream.'),
+    description: $t(
+      "Include your channel's most recent events into your stream."
+    ),
     demoVideo: true,
     demoFilename: 'source-eventlist.mp4',
     supportList: [
@@ -478,24 +487,19 @@ export const WidgetDisplayData = (): { [x: number]: IWidgetDisplayData } => ({
     description: $t('Spin the wheel to make a decision.'),
     demoVideo: true,
     demoFilename: 'source-wheel.mp4',
-    supportList: [$t('The streamer manually triggers a spin anytime while they are live.')]
+    supportList: [
+      $t('The streamer manually triggers a spin anytime while they are live.')
+    ]
   },
   [WidgetType.MediaShare]: {
     name: $t('Media Share'),
     description: $t(
       'Please note that when advanced media share is enabled,' +
-      ' media will no longer play through your alert box widget.' +
-      ' Media will only play through this media share widget.'
+        ' media will no longer play through your alert box widget.' +
+        ' Media will only play through this media share widget.'
     ),
     demoVideo: false,
     demoFilename: 'source-sponsor-banner.png',
     supportList: []
-  },
-  // [WidgetType.Chatbot]: {
-  //   name: $t('Chatbot'),
-  //   description: $t('Set up chatbot widget to enable chatbot song requests and other features.'),
-  //   demoVideo: false,
-  //   demoFilename: 'source-sponsor-banner.png',
-  //   supportList: []
-  // }
+  }
 });

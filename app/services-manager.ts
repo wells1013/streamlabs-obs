@@ -6,7 +6,13 @@ import { ObsImporterService } from './services/obs-importer';
 import { YoutubeService } from './services/platforms/youtube';
 import { TwitchService } from './services/platforms/twitch';
 import { MixerService } from './services/platforms/mixer';
-import { ScenesService, SceneItem, SceneItemFolder, Scene, SceneItemNode } from './services/scenes';
+import {
+  ScenesService,
+  SceneItem,
+  SceneItemFolder,
+  Scene,
+  SceneItemNode
+} from './services/scenes';
 import { ClipboardService } from './services/clipboard';
 import { AudioService, AudioSource } from './services/audio';
 import { CustomizationService } from './services/customization';
@@ -57,6 +63,7 @@ import { SelectionService, Selection } from 'services/selection';
 import { OverlaysPersistenceService } from 'services/scene-collections/overlays';
 import { SceneCollectionsStateService } from 'services/scene-collections/state';
 import { ChatbotApiService, ChatbotCommonService } from 'services/chatbot';
+import { IncrementalRolloutService } from 'services/incremental-rollout';
 import {
   IJsonRpcResponse,
   IJsonRpcEvent,
@@ -90,8 +97,9 @@ import { CreditsService } from 'services/widget-settings/credits';
 import { EventListService } from 'services/widget-settings/event-list';
 import { TipJarService } from 'services/widget-settings/tip-jar';
 import { SponsorBannerService } from 'services/widget-settings/sponsor-banner';
+import { SubGoalService } from 'services/widget-settings/sub-goal';
 import { MediaShareService } from 'services/widget-settings/media-share';
-import { ChatbotService } from 'services/widget-settings/chatbot';
+import { ChatbotWidgetService } from 'services/widget-settings/chatbot';
 
 const { ipcRenderer } = electron;
 
@@ -182,10 +190,12 @@ export class ServicesManager extends Service {
     EventListService,
     TipJarService,
     SponsorBannerService,
+    SubGoalService,
     MediaGalleryService,
+    IncrementalRolloutService,
     AnnouncementsService,
     MediaShareService,
-    ChatbotService,
+    ChatbotWidgetService
   };
 
   private instances: Dictionary<Service> = {};
@@ -215,7 +225,6 @@ export class ServicesManager extends Service {
   subscriptions: Dictionary<Subscription> = {};
 
   init() {
-
     // this helps to debug services from the console
     if (Utils.isDevMode()) {
       window['sm'] = this;
@@ -230,7 +239,6 @@ export class ServicesManager extends Service {
     }
 
     Service.serviceAfterInit.subscribe(service => this.initObservers(service));
-
   }
 
   private initObservers(observableService: Service): Service[] {
@@ -268,7 +276,6 @@ export class ServicesManager extends Service {
     ipcRenderer.on(
       'services-message',
       (event: Electron.Event, message: IJsonRpcResponse<IJsonRpcEvent>) => {
-
         if (message.result._type !== 'EVENT') return;
 
         // handle promise reject/resolve
@@ -305,15 +312,19 @@ export class ServicesManager extends Service {
     const handleErrors = (e?: any) => {
       if (!e && this.requestErrors.length === 0) return;
       if (e) {
-
         // re-raise error for Raven
-        const isChildWindowRequest = request.params && request.params.fetchMutations;
-        if (isChildWindowRequest) setTimeout(() => { throw e; }, 0);
+        const isChildWindowRequest =
+          request.params && request.params.fetchMutations;
+        if (isChildWindowRequest) {
+          setTimeout(() => {
+            throw e;
+          }, 0);
+        }
 
         if (e.message) this.requestErrors.push(e.stack.toString());
       }
 
-      response = this.jsonrpc.createError(request,{
+      response = this.jsonrpc.createError(request, {
         code: E_JSON_RPC_ERROR.INTERNAL_SERVER_ERROR,
         message: this.requestErrors.join(';')
       });
@@ -415,13 +426,13 @@ export class ServicesManager extends Service {
       response = this.jsonrpc.createResponse(request, {
         _type: 'HELPER',
         resourceId: helper._resourceId,
-        ...!compactMode ? this.getHelperModel(helper) : {}
+        ...(!compactMode ? this.getHelperModel(helper) : {})
       });
     } else if (responsePayload && responsePayload instanceof Service) {
       response = this.jsonrpc.createResponse(request, {
         _type: 'SERVICE',
         resourceId: responsePayload.serviceName,
-        ...!compactMode ? this.getHelperModel(responsePayload) : {}
+        ...(!compactMode ? this.getHelperModel(responsePayload) : {})
       });
     } else {
       // payload can contain helpers-objects
@@ -432,7 +443,7 @@ export class ServicesManager extends Service {
           return {
             _type: 'HELPER',
             resourceId: helper._resourceId,
-            ...!compactMode ? this.getHelperModel(helper) : {}
+            ...(!compactMode ? this.getHelperModel(helper) : {})
           };
         }
       });
@@ -494,7 +505,6 @@ export class ServicesManager extends Service {
       resourceScheme[key] = typeof resource[key];
     });
 
-
     return resourceScheme;
   }
 
@@ -531,7 +541,6 @@ export class ServicesManager extends Service {
     const availableServices = Object.keys(this.services);
     if (!availableServices.includes(service.constructor.name)) return service;
 
-
     return new Proxy(service, {
       get: (target, property, receiver) => {
         if (!target[property]) return target[property];
@@ -540,11 +549,20 @@ export class ServicesManager extends Service {
           return this.applyIpcProxy(target[property]);
         }
 
-        if (Reflect.getMetadata('executeInCurrentWindow', target, property as string)) {
+        if (
+          Reflect.getMetadata(
+            'executeInCurrentWindow',
+            target,
+            property as string
+          )
+        ) {
           return target[property];
         }
 
-        if (typeof target[property] !== 'function' && !(target[property] instanceof Observable)) {
+        if (
+          typeof target[property] !== 'function' &&
+          !(target[property] instanceof Observable)
+        ) {
           return target[property];
         }
 
@@ -553,7 +571,6 @@ export class ServicesManager extends Service {
         const isHelper = target['isHelper'];
 
         const handler = (...args: any[]) => {
-
           const response: IJsonRpcResponse<any> = electron.ipcRenderer.sendSync(
             'services-request',
             this.jsonrpc.createRequestWithOptions(
@@ -586,7 +603,10 @@ export class ServicesManager extends Service {
             }
           }
 
-          if (result && (result._type === 'HELPER' || result._type === 'SERVICE')) {
+          if (
+            result &&
+            (result._type === 'HELPER' || result._type === 'SERVICE')
+          ) {
             const helper = this.getResource(result.resourceId);
             return this.applyIpcProxy(helper);
           }
