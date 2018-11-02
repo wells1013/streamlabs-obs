@@ -2,7 +2,6 @@
 <ModalLayout
   :showControls="false"
   :customControls="true"
-  :title="isEdit ? $t('Edit Command') : $t('Add Command')"
 >
   <div slot="fixed">
     <Tabs :tabs="tabs" :value="selectedTab" @input="onSelectTabHandler">
@@ -43,14 +42,14 @@
           <div class="row">
             <div class="small-6 columns">
               <VFormGroup
-                :title="$t('Global Command Cooldown (Value in Minutes)')"
+                :title="$t('Global Command Cooldown (Value in Seconds)')"
                 v-model="newCommand.cooldowns.global"
                 :metadata="cooldownsMetadata"
               />
             </div>
             <div class="small-6 columns">
               <VFormGroup
-                :title="$t('User Command Cooldown (Value in Minutes)')"
+                :title="$t('User Command Cooldown (Value in Seconds)')"
                 v-model="newCommand.cooldowns.user"
                 :metadata="cooldownsMetadata"
               />

@@ -27,7 +27,8 @@ export enum WidgetType {
   SpinWheel = 12,
   SponsorBanner = 13,
   MediaShare = 14,
-  SubGoal = 15
+  SubGoal = 15,
+  Chatbot = 16
 }
 
 export const WidgetTesters: IWidgetTester[] = [
@@ -36,7 +37,7 @@ export const WidgetTesters: IWidgetTester[] = [
     url(host, platform) {
       return `https://${host}/api/v5/slobs/test/${platform}_account/follow`;
     },
-    platforms: ['twitch']
+    platforms: ['twitch', 'mixer']
   },
   {
     name: 'Subscriber',
@@ -46,18 +47,11 @@ export const WidgetTesters: IWidgetTester[] = [
     platforms: ['youtube']
   },
   {
-    name: 'Follow',
-    url(host, platform) {
-      return `https://${host}/api/v5/slobs/test/${platform}_account/follow`;
-    },
-    platforms: ['mixer']
-  },
-  {
     name: 'Subscription',
     url(host, platform) {
       return `https://${host}/api/v5/slobs/test/${platform}_account/subscription`;
     },
-    platforms: ['twitch']
+    platforms: ['twitch', 'mixer']
   },
   {
     name: 'Sponsor',
@@ -65,13 +59,6 @@ export const WidgetTesters: IWidgetTester[] = [
       return `https://${host}/api/v5/slobs/test/${platform}_account/subscription`;
     },
     platforms: ['youtube']
-  },
-  {
-    name: 'Subscription',
-    url(host, platform) {
-      return `https://${host}/api/v5/slobs/test/${platform}_account/subscription`;
-    },
-    platforms: ['mixer']
   },
   {
     name: 'Donation',
@@ -342,6 +329,20 @@ export const WidgetDefinitions: { [x: number]: IWidget } = {
     y: 0,
 
     anchor: AnchorPoint.North
+  },
+  [WidgetType.Chatbot]: {
+    name: 'Chatbot',
+    url(host, token) {
+      return `https://${host}/widgets/chatbot/v1/${token}`;
+    },
+
+    width: 800,
+    height: 600,
+
+    x: 0.5,
+    y: 0,
+
+    anchor: AnchorPoint.North
   }
 };
 
@@ -497,6 +498,15 @@ export const WidgetDisplayData = (
       'Please note that when advanced media share is enabled,' +
         ' media will no longer play through your alert box widget.' +
         ' Media will only play through this media share widget.'
+    ),
+    demoVideo: false,
+    demoFilename: 'source-sponsor-banner.png',
+    supportList: []
+  },
+  [WidgetType.Chatbot]: {
+    name: $t('Chatbot'),
+    description: $t(
+      'Set up chatbot widget to enable chatbot song requests and other features.'
     ),
     demoVideo: false,
     demoFilename: 'source-sponsor-banner.png',

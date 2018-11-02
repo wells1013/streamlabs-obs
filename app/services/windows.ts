@@ -24,6 +24,7 @@ import ManageSceneCollections from 'components/windows/ManageSceneCollections.vu
 import RecentEvents from 'components/windows/RecentEvents.vue';
 import Projector from 'components/windows/Projector.vue';
 import MediaGallery from 'components/windows/MediaGallery.vue';
+import PlatformAppPopOut from 'components/windows/PlatformAppPopOut.vue';
 import { mutation, StatefulService } from 'services/stateful-service';
 import electron from 'electron';
 import Vue from 'vue';
@@ -59,7 +60,6 @@ import TipJar from 'components/widgets/TipJar.vue';
 import SponsorBanner from 'components/widgets/SponsorBanner.vue';
 import ExecuteInCurrentWindow from '../util/execute-in-current-window';
 import MediaShare from 'components/widgets/MediaShare.vue';
-import SlVueTree from 'sl-vue-tree';
 
 const { ipcRenderer, remote } = electron;
 const BrowserWindow = remote.BrowserWindow;
@@ -91,6 +91,7 @@ export function getComponents() {
     Projector,
     RecentEvents,
     MediaGallery,
+    PlatformAppPopOut,
 
     BitGoal,
     DonationGoal,
@@ -174,6 +175,7 @@ export class WindowsService extends StatefulService<IWindowsState> {
   components = getComponents();
 
   windowUpdated = new Subject<{ windowId: string; options: IWindowOptions }>();
+  windowDestroyed = new Subject<string>();
   private windows: Dictionary<Electron.BrowserWindow> = {};
 
   init() {
@@ -265,6 +267,7 @@ export class WindowsService extends StatefulService<IWindowsState> {
 
     newWindow.setMenu(null);
     newWindow.on('closed', () => {
+      this.windowDestroyed.next(windowId);
       delete this.windows[windowId];
       this.DELETE_ONE_OFF_WINDOW(windowId);
     });
@@ -290,12 +293,16 @@ export class WindowsService extends StatefulService<IWindowsState> {
     Object.keys(this.windows).forEach(windowId => {
       if (windowId === 'main') return;
       if (windowId === 'child') return;
-      if (this.windows[windowId]) {
-        if (!this.windows[windowId].isDestroyed()) {
-          this.windows[windowId].destroy();
-        }
-      }
+      this.closeOneOffWindow(windowId);
     });
+  }
+
+  closeOneOffWindow(windowId: string) {
+    if (this.windows[windowId]) {
+      if (!this.windows[windowId].isDestroyed()) {
+        this.windows[windowId].destroy();
+      }
+    }
   }
 
   // @ExecuteInCurrentWindow()
@@ -304,7 +311,7 @@ export class WindowsService extends StatefulService<IWindowsState> {
   }
 
   // @ExecuteInCurrentWindow()
-  getChildWindowQueryParams(): Dictionary<string> {
+  getChildWindowQueryParams(): Dictionary<any> {
     return this.getChildWindowOptions().queryParams || {};
   }
 

@@ -4,13 +4,19 @@ import { $t } from 'services/i18n';
 import { ITab } from 'components/Tabs.vue';
 import { metadata as metadataHelper } from 'components/widgets/inputs';
 import { cloneDeep } from 'lodash';
-import { IMediaShareBan } from 'services/widget-settings/media-share';
+import { IMediaShareBan } from 'services/widgets/settings/media-share';
 import { EInputType } from 'components/shared/inputs/index';
 import ValidatedForm from 'components/shared/inputs/ValidatedForm.vue';
 
 import { ISongRequestData } from 'services/chatbot';
 
-@Component({})
+// general tab is all from chatbot api directly
+// banned item is from media share api sl.com
+@Component({
+  components: {
+    ValidatedForm
+  }
+})
 export default class ChatbotSongRequestPreferencesWindow extends ChatbotWindowsBase {
   $refs: {
     form: ValidatedForm;
@@ -46,16 +52,17 @@ export default class ChatbotSongRequestPreferencesWindow extends ChatbotWindowsB
   }
 
   async fetchSongRequest() {
-    await this.chatbotApiService.fetchSongRequestPreferencesData();
-    await this.chatbotApiService.fetchSongRequest();
+    await this.chatbotApiService.SongRequest.fetchSongRequestPreferencesData();
+    await this.chatbotApiService.SongRequest.fetchSongRequest();
     this.songRequestBannedMedia = cloneDeep(
-      this.chatbotApiService.state.songRequestPreferencesResponse.banned_media
+      this.chatbotApiService.SongRequest.state.songRequestPreferencesResponse
+        .banned_media
     );
     this.songRequestData = cloneDeep(this.songRequestResponse.settings);
   }
 
   get songRequestResponse() {
-    return this.chatbotApiService.state.songRequestResponse;
+    return this.chatbotApiService.SongRequest.state.songRequestResponse;
   }
 
   get metadata() {
@@ -97,15 +104,15 @@ export default class ChatbotSongRequestPreferencesWindow extends ChatbotWindowsB
   async onSaveHandler() {
     if (await this.$refs.form.validateAndGetErrorsCount()) return;
 
-    await this.chatbotApiService.updateSongRequest({
+    await this.chatbotApiService.SongRequest.updateSongRequest({
       ...this.songRequestResponse,
       settings: this.songRequestData
     });
-    this.chatbotCommonService.closeChildWindow();
+    this.chatbotApiService.Common.closeChildWindow();
   }
 
   async onUnbanMediaHandler(media: IMediaShareBan) {
-    await this.chatbotApiService.unbanMedia(media);
+    await this.chatbotApiService.SongRequest.unbanMedia(media);
     this.fetchSongRequest();
   }
 }

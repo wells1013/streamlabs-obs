@@ -1,35 +1,6 @@
 import {
-  MediaShareService,
-  IMediaShareData,
   IMediaShareBan
-} from 'services/widget-settings/media-share';
-
-// state
-export interface IChatbotApiServiceState {
-  // v1
-  apiToken: string;
-  socketToken: string;
-  globallyEnabled: boolean;
-  defaultCommandsResponse: IDafaultCommandsResponse;
-  customCommandsResponse: ICustomCommandsResponse;
-  timersResponse: ITimersResponse;
-  commandVariablesResponse: ICommandVariablesResponse;
-  chatAlertsResponse: IChatAlertsResponse;
-  capsProtectionResponse: ICapsProtectionResponse;
-  symbolProtectionResponse: ISymbolProtectionResponse;
-  linkProtectionResponse: ILinkProtectionResponse;
-  wordProtectionResponse: IWordProtectionResponse;
-
-  // v2
-  quotesResponse: IQuotesResponse;
-  quotePreferencesResponse: IQuotePreferencesResponse;
-  queuePreferencesResponse: IQueuePreferencesResponse;
-  queueStateResponse: IQueueStateResponse;
-  queueEntriesResponse: IQueueEntriesResponse;
-  queuePickedResponse: IQueuePickedResponse;
-  songRequestPreferencesResponse: ISongRequestPreferencesResponse;
-  songRequestResponse: ISongRequestResponse;
-}
+} from 'services/widgets/settings/media-share';
 
 export interface IChatbotCommonServiceState {
   toasted: any;

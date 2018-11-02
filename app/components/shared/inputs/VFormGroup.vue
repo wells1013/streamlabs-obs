@@ -16,7 +16,7 @@
       <form-input
         :value="value"
         :metadata="formInputMetadata"
-        @input="value => $emit('input', value)"
+        @input="(value, event) => emitInput(value, event)"
       />
 
       <div v-if="!type" class="slots">
@@ -42,13 +42,6 @@
 
 <style lang="less" scoped>
   @import "../../../styles/index";
-
-  .input-container {
-    display: flex;
-    align-items: center;
-    width: 100%;
-    justify-content: flex-start;
-  }
 
   .slots {
     width: 100%;
