@@ -13,7 +13,7 @@ import {
   IChatbotAPIPostResponse,
   ChatbotSettingSlug,
   IChatbotSocketAuthResponse,
-  ChatbotSocketRoom,
+  ChatbotSocketRoom
 } from './chatbot-interfaces';
 
 // state
@@ -23,17 +23,24 @@ interface IChatbotBaseApiServiceState {
   globallyEnabled: boolean;
 }
 
-export class ChatbotBaseApiService extends PersistentStatefulService<IChatbotBaseApiServiceState> {
+export class ChatbotBaseApiService extends PersistentStatefulService<
+  IChatbotBaseApiServiceState
+> {
   @Inject() userService: UserService;
 
-  apiUrl = 'https://chatbot-api.streamlabs.com/';
-  socketUrl = 'https://chatbot-io.streamlabs.com';
+  apiUrl = true
+    ? 'http://localhost:3000/'
+    : 'https://chatbot-api.streamlabs.com/';
+  socketUrl = true
+    ? 'http://localhost:3004'
+    : 'https://chatbot-io.streamlabs.com';
+
   version = 'api/v1/';
 
   static defaultState: IChatbotBaseApiServiceState = {
     apiToken: null,
     socketToken: null,
-    globallyEnabled: false,
+    globallyEnabled: false
   };
 
   //
@@ -133,9 +140,9 @@ export class ChatbotBaseApiService extends PersistentStatefulService<IChatbotBas
         // all status online.
         this.UPDATE_GLOBALLY_ENABLED(
           response.worker.status === 'Online' &&
-          response.worker.type === 'Full' &&
-          response.clients.status === 'Online' &&
-          clientFound
+            response.worker.type === 'Full' &&
+            response.clients.status === 'Online' &&
+            clientFound
         );
       }
     );
@@ -197,5 +204,4 @@ export class ChatbotBaseApiService extends PersistentStatefulService<IChatbotBas
   private UPDATE_GLOBALLY_ENABLED(enabled: boolean) {
     Vue.set(this.state, 'globallyEnabled', enabled);
   }
-
 }
