@@ -55,8 +55,12 @@ export class ChatbotApiService extends PersistentStatefulService<
   @Inject() chatbotCommonService: ChatbotCommonService;
   @Inject() mediaShareService: MediaShareService;
 
-  apiUrl = 'https://chatbot-api.streamlabs.com/';
-  socketUrl = 'https://chatbot-io.streamlabs.com';
+  apiUrl = true
+    ? 'http://localhost:3000/'
+    : 'https://chatbot-api.streamlabs.com/';
+  socketUrl = true
+    ? 'http://localhost:3004/'
+    : 'https://chatbot-io.streamlabs.com';
   version = 'api/v1/';
 
   static defaultState: IChatbotApiServiceState = {
@@ -152,6 +156,10 @@ export class ChatbotApiService extends PersistentStatefulService<
   logIn() {
     return new Promise((resolve, reject) => {
       const url = this.apiEndpoint('login');
+      /*const headers = true
+        ? authorizedHeaders('02f0b2243beb35098c50c1a40')
+        : authorizedHeaders(this.userService.apiToken);*/
+
       const headers = authorizedHeaders(this.userService.apiToken);
       headers.append('Content-Type', 'application/json');
       const request = new Request(url, {
@@ -275,9 +283,13 @@ export class ChatbotApiService extends PersistentStatefulService<
       (response: IChatbotStatusResponse) => {
         // check for clients
 
+        console.log(response);
+
         const clientFound = response.clients.services.some(value => {
           return value.toLowerCase() == this.userService.platform.type;
         });
+
+        console.log(clientFound);
 
         // all status online.
         this.UPDATE_GLOBALLY_ENABLED(
