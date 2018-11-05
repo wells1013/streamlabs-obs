@@ -28,12 +28,8 @@ export class ChatbotBaseApiService extends PersistentStatefulService<
 > {
   @Inject() userService: UserService;
 
-  apiUrl = true
-    ? 'http://localhost:3000/'
-    : 'https://chatbot-api.streamlabs.com/';
-  socketUrl = true
-    ? 'http://localhost:3004'
-    : 'https://chatbot-io.streamlabs.com';
+  apiUrl = 'https://chatbot-api.streamlabs.com/';
+  socketUrl = 'https://chatbot-io.streamlabs.com';
 
   version = 'api/v1/';
 
