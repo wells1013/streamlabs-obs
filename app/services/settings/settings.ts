@@ -136,22 +136,16 @@ export class SettingsService extends StatefulService<ISettingsState>
     // have not implemented them yet.
     const BLACK_LIST_NAMES = [
       'SysTrayMinimizeToTray',
-      'ReplayBufferWhileStreaming',
-      'KeepReplayBufferStreamStops',
       'SysTrayEnabled',
       'CenterSnapping',
       'HideProjectorCursor',
       'ProjectorAlwaysOnTop',
       'SaveProjectors',
       'SysTrayWhenStarted',
-      'RecRBSuffix',
       'LowLatencyEnable',
       'BindIP',
-      'FilenameFormatting',
       'MaxRetries',
       'NewSocketLoopEnable',
-      'OverwriteIfExists',
-      'RecRBPrefix',
       'Reconnect',
       'RetryDelay'
     ];
