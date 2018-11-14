@@ -91,13 +91,13 @@ import { ProtocolLinksService } from 'services/protocol-links';
 import { WebsocketService } from 'services/websocket';
 import { ProjectorService } from 'services/projector';
 import { FacemasksService } from 'services/facemasks';
-import { ProfanityFilterService } from 'util/profanity';
 import { I18nService } from 'services/i18n';
 import { MediaBackupService } from 'services/media-backup';
 import { OutageNotificationsService } from 'services/outage-notifications';
 import { MediaGalleryService } from 'services/media-gallery';
 import { AnnouncementsService } from 'services/announcements';
 import { BrandDeviceService } from 'services/auto-config/brand-device';
+import { ObsUserPluginsService } from 'services/obs-user-plugins';
 
 import { BitGoalService } from 'services/widgets/settings/bit-goal';
 import { ChatBoxService } from 'services/widgets/settings/chat-box';
@@ -189,7 +189,6 @@ export class ServicesManager extends Service {
     MediaBackupService,
     WebsocketService,
     FacemasksService,
-    ProfanityFilterService,
     I18nService,
     OutageNotificationsService,
     BitGoalService,
@@ -219,7 +218,8 @@ export class ServicesManager extends Service {
     AnnouncementsService,
     MediaShareService,
     ChatbotWidgetService,
-    BrandDeviceService
+    BrandDeviceService,
+    ObsUserPluginsService
   };
 
   private instances: Dictionary<Service> = {};

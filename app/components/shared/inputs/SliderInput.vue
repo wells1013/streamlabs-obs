@@ -1,5 +1,10 @@
 <template>
-<div class="w-form-group__wrapper slider-container">
+<div
+  class="w-form-group__wrapper slider-container"
+  data-role="input"
+  data-type="slider"
+  :data-name="options.name"
+>
   <vue-slider class="slider w-form-group__input"
     :value="value"
     @input="value => updateValue(value)"
@@ -51,7 +56,8 @@
 
 .slider {
   background: transparent;
-  padding: 8px;
+  .padding-v-sides();
+  .padding-h-sides(@0)!important;
   margin: 0;
   flex-grow: 1;
   height: auto;

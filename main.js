@@ -20,38 +20,37 @@ process.env.SLOBS_VERSION = pjson.version;
 ////////////////////////////////////////////////////////////////////////////////
 const { app, BrowserWindow, ipcMain, session, crashReporter, dialog, webContents } = require('electron');
 const fs = require('fs');
-const bootstrap = require('./updater/bootstrap.js');
+const { Updater } = require('./updater/Updater.js');
 const uuid = require('uuid/v4');
 const rimraf = require('rimraf');
 const path = require('path');
-const semver = require('semver');
 const windowStateKeeper = require('electron-window-state');
 const obs = require('obs-studio-node');
-
-app.disableHardwareAcceleration();
+const pid = require('process').pid;
+const crashHandler = require('crash-handler');
+const electronLog = require('electron-log');
 
 if (process.argv.includes('--clearCacheDir')) {
   rimraf.sync(app.getPath('userData'));
 }
 
-/* Determine the current release channel we're
- * on based on name. The channel will always be
- * the premajor identifier, if it exists.
- * Otherwise, default to latest. */
-const releaseChannel = (() => {
-  const components = semver.prerelease(pjson.version);
-
-  if (components) return components[0];
-  return 'latest';
-})();
+app.disableHardwareAcceleration();
 
 ////////////////////////////////////////////////////////////////////////////////
 // Main Program
 ////////////////////////////////////////////////////////////////////////////////
 
+(function setupLogger() {
+  // default logs path is %USERPROFILE%\AppData\Roaming\<app name>\log.log
+  electronLog.transports.file.level = 'info';
+  // Set approximate maximum log size in bytes. When it exceeds,
+  // the archived log will be saved as the log.old.log file
+  electronLog.transports.file.maxSize = 5 * 1024 * 1024;
+})();
+
 function log(...args) {
   if (!process.env.SLOBS_DISABLE_MAIN_LOGGING) {
-    console.log(...args);
+    electronLog.log(...args);
   }
 }
 
@@ -68,6 +67,7 @@ let appShutdownTimeout;
 
 global.indexUrl = 'file://' + __dirname + '/index.html';
 
+
 function openDevTools() {
   childWindow.webContents.openDevTools({ mode: 'undocked' });
   mainWindow.webContents.openDevTools({ mode: 'undocked' });
@@ -76,12 +76,15 @@ function openDevTools() {
 function startApp() {
   const isDevMode = (process.env.NODE_ENV !== 'production') && (process.env.NODE_ENV !== 'test');
 
+  crashHandler.startCrashHandler(app.getAppPath());
+  crashHandler.registerProcess(pid, false);
+
   { // Initialize obs-studio-server
     // Set up environment variables for IPC.
     process.env.SLOBS_IPC_PATH = "slobs-".concat(uuid());
     process.env.SLOBS_IPC_USERDATA = app.getPath('userData');
     // Host a new IPC Server and connect to it.
-    obs.IPC.ConnectOrHost(process.env.SLOBS_IPC_PATH);
+    obs.IPC.host(process.env.SLOBS_IPC_PATH);
     obs.NodeObs.SetWorkingDirectory(path.join(
       app.getAppPath().replace('app.asar', 'app.asar.unpacked'),
       'node_modules',
@@ -288,52 +291,33 @@ app.setPath('userData', path.join(app.getPath('appData'), 'slobs-client'));
 
 app.setAsDefaultProtocolClient('slobs');
 
-if (app.requestSingleInstanceLock()) {
-  app.on('second-instance', (event, argv) => {
-    // Check for protocol links in the argv of the other process
-    argv.forEach(arg => {
-      if (arg.match(/^slobs:\/\//)) {
-        mainWindow.send('protocolLink', arg);
-      }
-    });
 
-    // Someone tried to run a second instance, we should focus our window.
-    if (mainWindow) {
-      if (mainWindow.isMinimized()) {
-        mainWindow.restore();
-      }
-
-      mainWindow.focus();
+// This ensures that only one copy of our app can run at once.
+const shouldQuit = app.makeSingleInstance(argv => {
+  // Check for protocol links in the argv of the other process
+  argv.forEach(arg => {
+    if (arg.match(/^slobs:\/\//)) {
+      mainWindow.send('protocolLink', arg);
     }
   });
-} else {
+
+  // Someone tried to run a second instance, we should focus our window.
+  if (mainWindow) {
+    if (mainWindow.isMinimized()) {
+      mainWindow.restore();
+    }
+
+    mainWindow.focus();
+  }
+});
+
+if (shouldQuit) {
   app.exit();
 }
 
-
 app.on('ready', () => {
   if ((process.env.NODE_ENV === 'production') || process.env.SLOBS_FORCE_AUTO_UPDATE) {
-    const updateInfo = {
-      baseUrl: 'https://d1g6eog1uhe0xm.cloudfront.net',
-      version: pjson.version,
-      exec: process.argv,
-      cwd: process.cwd(),
-      waitPids: [ process.pid ],
-      appDir: path.dirname(app.getPath('exe')),
-      tempDir: path.join(app.getPath('temp'), 'slobs-updater'),
-      cacheDir: app.getPath('userData'),
-      versionFileName: `${releaseChannel}.json`
-    };
-
-    console.log(updateInfo);
-    bootstrap(updateInfo).then((updating) => {
-      if (updating) {
-        console.log('Closing for update...');
-        app.exit();
-      } else {
-        startApp();
-      }
-    });
+    (new Updater(startApp)).run();
   } else {
     startApp();
   }
@@ -445,18 +429,6 @@ ipcMain.on('restartApp', () => {
   mainWindow.close();
 });
 
-ipcMain.on('requestSourceAttributes', (e, names) => {
-  const sizes = require('obs-studio-node').getSourcesSize(names);
-
-  e.sender.send('notifySourceAttributes', sizes);
-});
-
-ipcMain.on('requestPerformanceStatistics', (e) => {
-  const stats = getObs().OBS_API_getPerformanceStatistics();
-
-  e.sender.send('notifyPerformanceStatistics', stats);
-});
-
 ipcMain.on('streamlabels-writeFile', (e, info) => {
   fs.writeFile(info.path, info.data, err => {
     if (err) {
@@ -473,4 +445,9 @@ ipcMain.on('webContents-preventNavigation', (e, id) => {
 
 ipcMain.on('getMainWindowWebContentsId', e => {
   e.returnValue = mainWindow.webContents.id;
+});
+
+ipcMain.on('requestPerformanceStats', e => {
+  const stats = app.getAppMetrics();
+  e.sender.send('performanceStatsResponse', stats);
 });

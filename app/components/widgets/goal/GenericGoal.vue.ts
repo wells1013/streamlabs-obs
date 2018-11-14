@@ -29,8 +29,6 @@ export default class GenericGoal extends WidgetSettings<IGoalData, GenericGoalSe
     ends_at: ''
   };
 
-  textColorTooltip = $t('A hex code for the base text color.');
-
   navItems = [
     { value: 'goal', label: $t('Goal') },
     { value: 'visual', label: $t('Visual Settings') },
@@ -42,8 +40,8 @@ export default class GenericGoal extends WidgetSettings<IGoalData, GenericGoalSe
   }
 
   async saveGoal() {
-    this.requestState = 'pending';
     if (await this.$refs.form.validateAndGetErrorsCount()) return;
+    this.requestState = 'pending';
     await this.service.saveGoal(this.goalCreateOptions);
     this.requestState = 'success';
   }

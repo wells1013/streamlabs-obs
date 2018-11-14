@@ -42,12 +42,7 @@ export default class ChatbotLinkProtectionWindow extends ChatbotModToolsBase {
   }
 
   async onSaveHandler() {
-    if (
-      this.$refs.form &&
-      (await this.$refs.form.validateAndGetErrorsCount())
-    ) {
-      return;
-    }
+    if (this.$refs.form && await this.$refs.form.validateAndGetErrorsCount()) return;
 
     this.chatbotApiService.ModTools.updateLinkProtection({
       enabled: this.linkProtectionResponse.enabled,
