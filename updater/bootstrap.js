@@ -51,7 +51,7 @@ async function mkdirMaybe(directory) {
 }
 
 async function ensureDir(dirPath) {
-    const directories = dirPath.split(path.sep)
+    const directories = dirPath.split(path.sep);
 
     let directory = directories[0];
 
@@ -161,7 +161,7 @@ async function fetchUpdater(info, progress) {
             accum += chunk.length;
             progress((accum / contentLength) * 100);
         });
-    }
+    };
 
     return new Promise((resolve, reject) => {
         const outPipe = request(reqInfo)
@@ -183,7 +183,7 @@ async function getVersion(info) {
         baseUrl: info.baseUrl,
         uri: `/${info.versionFileName}`,
         json: true
-    }
+    };
 
     let response = await prequest(reqInfo);
 
@@ -315,4 +315,4 @@ module.exports = async (info) => {
         destroyStatusWindow();
         return Promise.resolve(false);
     });
-}
+};
