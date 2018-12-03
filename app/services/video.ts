@@ -118,7 +118,7 @@ export class Display {
     };
 
     trackingFun();
-    this.trackingInterval = window.setInterval(trackingFun, DISPLAY_ELEMENT_POLLING_INTERVAL);
+    window.addEventListener('resize', trackingFun);
   }
 
   getScaledRectangle(rect: ClientRect): IRectangle {
@@ -206,12 +206,9 @@ export class VideoService extends Service {
     this.settingsService.store.watch(state => {
       return state.SettingsService.Video.Base;
     }, () => {
-      // This gives the setting time to propagate
-      setTimeout(() => {
-        Object.values(this.activeDisplays).forEach(display => {
-          display.refreshOutputRegion();
-        });
-      }, 1000);
+      Object.values(this.activeDisplays).forEach(display => {
+        display.refreshOutputRegion();
+      });
     });
   }
 
