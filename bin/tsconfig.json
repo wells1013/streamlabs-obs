@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "lib": [
+      "ES2015"
+    ],
+    "types": [
+      "node"
+    ],
+    "module": "commonjs",
+    "target": "ES2017",
+    "strict": true,
+  },
+  "files": [
+    "release.ts"
+  ],
+}
