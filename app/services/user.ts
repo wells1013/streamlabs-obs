@@ -17,11 +17,11 @@ import {
   IPlatformService
 } from './platforms';
 import { CustomizationService } from 'services/customization';
-import Raven from 'raven-js';
+import * as Sentry from '@sentry/browser';
 import { AppService } from 'services/app';
 import { RunInLoadingMode } from 'services/app/app-decorators';
 import { SceneCollectionsService } from 'services/scene-collections';
-import { Subject } from 'rxjs/Subject';
+import { Subject } from 'rxjs';
 import Util from 'services/utils';
 import { WindowsService } from 'services/windows';
 import { $t } from 'services/i18n';
@@ -72,10 +72,11 @@ export class UserService extends PersistentStatefulService<IUserServiceState> {
   }
 
   userLogin = new Subject<IPlatformAuth>();
+  userLogout = new Subject();
 
   init() {
     super.init();
-    this.setRavenContext();
+    this.setSentryContext();
     this.validateLogin();
     this.incrementalRolloutService.fetchAvailableFeatures();
   }
@@ -259,7 +260,7 @@ export class UserService extends PersistentStatefulService<IUserServiceState> {
 
   private async login(service: IPlatformService, auth: IPlatformAuth) {
     this.LOGIN(auth);
-    this.setRavenContext();
+    this.setSentryContext();
     service.setupStreamSettings(auth);
     this.userLogin.next(auth);
     await this.sceneCollectionsService.setupNewUser();
@@ -275,8 +276,37 @@ export class UserService extends PersistentStatefulService<IUserServiceState> {
     // Navigate away from disabled tabs on logout
     this.navigationService.navigate('Studio');
     this.LOGOUT();
+    this.userLogout.next();
     electron.remote.session.defaultSession.clearStorageData({ storages: ['cookies'] });
     this.platformAppsService.unloadApps();
+  }
+
+  getFacebookPages() {
+    if (this.platform.type !== 'facebook') return;
+    const host = this.hostsService.streamlabs;
+    const url = `https://${host}/api/v5/slobs/user/facebook/pages`;
+    const headers = authorizedHeaders(this.apiToken);
+    const request = new Request(url, { headers });
+
+    return fetch(request)
+      .then(handleErrors)
+      .then(response => response.json());
+  }
+
+  postFacebookPage(pageId: string) {
+    const host = this.hostsService.streamlabs;
+    const url = `https://${host}/api/v5/slobs/user/facebook/pages`;
+    const headers = authorizedHeaders(this.apiToken);
+    headers.append('Content-Type', 'application/json');
+    const request = new Request(
+      url,
+      { headers, method: 'POST', body: JSON.stringify({ page_id: pageId, page_type: 'page' }) }
+    );
+    try {
+      fetch(request);
+    } catch {
+      console.error(new Error('Could not set Facebook page'));
+    }
   }
 
   /**
@@ -359,13 +389,16 @@ export class UserService extends PersistentStatefulService<IUserServiceState> {
   }
 
   /**
-   * Registers the current user information with Raven so
-   * we can view more detailed information in sentry.
+   * Registers the current user information with Sentry so
+   * we can view more detailed information.
    */
-  setRavenContext() {
+  setSentryContext() {
     if (!this.isLoggedIn()) return;
-    Raven.setUserContext({ username: this.username });
-    Raven.setExtraContext({ platform: this.platform.type });
+
+    Sentry.configureScope(scope => {
+      scope.setUser({ username: this.username });
+      scope.setExtra('platform', this.platform.type);
+    });
   }
 
   popoutRecentEvents() {

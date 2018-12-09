@@ -1,11 +1,12 @@
 import electron from 'electron';
 import uuid from 'uuid/v4';
-import { Service } from './services/service';
-import { AutoConfigService } from './services/auto-config';
-import { ObsImporterService } from './services/obs-importer';
-import { YoutubeService } from './services/platforms/youtube';
-import { TwitchService } from './services/platforms/twitch';
-import { MixerService } from './services/platforms/mixer';
+import { Service } from 'services/service';
+import { AutoConfigService } from 'services/auto-config';
+import { ObsImporterService } from 'services/obs-importer';
+import { YoutubeService } from 'services/platforms/youtube';
+import { TwitchService } from 'services/platforms/twitch';
+import { MixerService } from 'services/platforms/mixer';
+import { FacebookService } from 'services/platforms/facebook';
 import { ScenesService, SceneItem, SceneItemFolder, Scene, SceneItemNode } from './services/scenes';
 import { ClipboardService } from './services/clipboard';
 import { AudioService, AudioSource } from './services/audio';
@@ -45,9 +46,7 @@ import Utils from './services/utils';
 import { commitMutation } from './store';
 import traverse from 'traverse';
 import { ObserveList } from './util/service-observer';
-import { Subject } from 'rxjs/Subject';
-import { Subscription } from 'rxjs/Subscription';
-import { Observable } from 'rxjs/Observable';
+import { Subject, Observable, Subscription} from 'rxjs';
 import { GuestApiService } from 'services/guest-api';
 import { VideoEncodingOptimizationService } from 'services/video-encoding-optimizations';
 import { DismissablesService } from 'services/dismissables';
@@ -74,7 +73,6 @@ import { ProtocolLinksService } from 'services/protocol-links';
 import { WebsocketService } from 'services/websocket';
 import { ProjectorService } from 'services/projector';
 import { FacemasksService } from 'services/facemasks';
-import { ProfanityFilterService } from 'util/profanity';
 import { I18nService } from 'services/i18n';
 import { MediaBackupService } from 'services/media-backup';
 import { OutageNotificationsService } from 'services/outage-notifications';
@@ -82,6 +80,8 @@ import { MediaGalleryService } from 'services/media-gallery';
 import { AnnouncementsService } from 'services/announcements';
 import { BrandDeviceService } from 'services/auto-config/brand-device';
 import { ObsUserPluginsService } from 'services/obs-user-plugins';
+import { HardwareService } from 'services/hardware';
+import { PrefabsService, Prefab } from 'services/prefabs';
 
 import { BitGoalService } from 'services/widgets/settings/bit-goal';
 import { ChatBoxService } from 'services/widgets/settings/chat-box';
@@ -97,6 +97,8 @@ import { SponsorBannerService } from 'services/widgets/settings/sponsor-banner';
 import { SubGoalService } from 'services/widgets/settings/sub-goal';
 import { MediaShareService } from 'services/widgets/settings/media-share';
 import { ChatbotWidgetService } from 'services/widgets/settings/chatbot';
+import { AlertBoxService } from 'services/widgets/settings/alert-box';
+import { SpinWheelService } from 'services/widgets/settings/spin-wheel';
 
 const { ipcRenderer } = electron;
 
@@ -111,6 +113,7 @@ export class ServicesManager extends Service {
     YoutubeService,
     TwitchService,
     MixerService,
+    FacebookService,
     ScenesService,
     SceneItemNode,
     SceneItem,
@@ -173,7 +176,6 @@ export class ServicesManager extends Service {
     MediaBackupService,
     WebsocketService,
     FacemasksService,
-    ProfanityFilterService,
     I18nService,
     OutageNotificationsService,
     BitGoalService,
@@ -188,15 +190,20 @@ export class ServicesManager extends Service {
     CreditsService,
     EventListService,
     TipJarService,
+    SpinWheelService,
     SponsorBannerService,
     SubGoalService,
     MediaGalleryService,
     IncrementalRolloutService,
     AnnouncementsService,
     MediaShareService,
+    AlertBoxService,
     ChatbotWidgetService,
     BrandDeviceService,
-    ObsUserPluginsService
+    ObsUserPluginsService,
+    HardwareService,
+    PrefabsService,
+    Prefab
   };
 
   private instances: Dictionary<Service> = {};
@@ -591,9 +598,9 @@ export class ServicesManager extends Service {
             }
 
             if (result.emitter === 'STREAM') {
-              const subject = new Subject<any>();
-              this.windowSubscriptions[result.resourceId] = subject;
-              return subject;
+              return this.windowSubscriptions[result.resourceId] =
+                this.windowSubscriptions[result.resourceId] ||
+                new Subject();
             }
           }
 

@@ -12,7 +12,7 @@ import {
   IWidgetSettingsState, TWIdgetLoadingState,
   WidgetsService
 } from 'services/widgets';
-import { Subject } from 'rxjs/Subject';
+import { Subject } from 'rxjs';
 import { IInputMetadata } from 'components/shared/inputs/index';
 import { mutation, StatefulService } from 'services/stateful-service';
 import { WebsocketService } from 'services/websocket';
@@ -39,7 +39,7 @@ export abstract class WidgetSettingsService<TWidgetData extends IWidgetData>
 {
 
   @Inject() private hostsService: HostsService;
-  @Inject() private userService: UserService;
+  @Inject() protected userService: UserService;
   @Inject() private widgetsService: WidgetsService;
   @Inject() protected websocketService: WebsocketService;
 
@@ -51,6 +51,7 @@ export abstract class WidgetSettingsService<TWidgetData extends IWidgetData>
   init() {
     this.websocketService.socketEvent.subscribe(event  => {
       const apiSettings = this.getApiSettings();
+      if (event.type == 'alertProfileChanged') this.onWidgetThemeChange();
       if (event.type !== apiSettings.settingsUpdateEvent) return;
       this.onSettingsUpdatedHandler(event as ISocketEvent)
     });
@@ -65,9 +66,19 @@ export abstract class WidgetSettingsService<TWidgetData extends IWidgetData>
     this.dataUpdated.next(this.state.data);
   }
 
+  private onWidgetThemeChange() {
+    // changing the widget theme updates the widget setting on the backend
+    // clear the current cached settings to require upload fresh data
+    this.RESET_WIDGET_DATA();
+  }
+
   async fetchData(): Promise<TWidgetData> {
     if (!this.state.data) await this.loadData();
     return this.state.data;
+  }
+
+  toggleCustomCode(enabled: boolean, data: IWidgetSettings, variation?: any) {
+    this.saveSettings({ ...data, custom_enabled: enabled });
   }
 
   protected async loadData() {
@@ -122,7 +133,7 @@ export abstract class WidgetSettingsService<TWidgetData extends IWidgetData>
     return settings;
   }
 
-  getMetadata(): Dictionary<IInputMetadata>  {
+  getMetadata(...options: any[]): Dictionary<IInputMetadata>  {
     return {};
   }
 
@@ -174,5 +185,12 @@ export abstract class WidgetSettingsService<TWidgetData extends IWidgetData>
   protected SET_WIDGET_DATA(data: TWidgetData, rawData: any) {
     this.state.data = data;
     this.state.rawData = rawData;
+  }
+
+  @mutation()
+  protected RESET_WIDGET_DATA() {
+    this.state.loadingState = 'none';
+    this.state.data = null;
+    this.state.rawData = null;
   }
 }

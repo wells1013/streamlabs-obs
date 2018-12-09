@@ -3,12 +3,9 @@ import { IChannelInfo, getPlatformService } from 'services/platforms';
 import { UserService } from './user';
 import { Inject } from 'util/injector';
 import { StreamingService } from '../services/streaming';
-import { TwitchService } from 'services/platforms/twitch';
-import { YoutubeService } from 'services/platforms/youtube';
-import { MixerService } from 'services/platforms/mixer';
 import { HostsService } from 'services/hosts';
 import { authorizedHeaders } from 'util/requests';
-import { Subject } from 'rxjs/Subject';
+import { Subject } from 'rxjs';
 
 
 interface IStreamInfoServiceState {
@@ -55,6 +52,8 @@ export class StreamInfoService extends StatefulService<IStreamInfoServiceState> 
     this.refreshStreamInfo();
 
     this.viewerCountInterval = window.setInterval(() => {
+      if (!this.userService.isLoggedIn()) return;
+
       if (this.streamingService.isStreaming) {
         const platform = getPlatformService(this.userService.platform.type);
 
@@ -93,17 +92,11 @@ export class StreamInfoService extends StatefulService<IStreamInfoServiceState> 
 
   setStreamInfo(title: string, description: string, game: string): Promise<boolean> {
     const platform = getPlatformService(this.userService.platform.type);
-    let promise: Promise<boolean>;
-
-    if (platform instanceof TwitchService || MixerService) {
-      promise = platform.putChannelInfo(title, game);
+    if (this.userService.platform.type === 'facebook' && game === '') {
+      return Promise.reject('You must select a game.');
     }
 
-    if (platform instanceof YoutubeService) {
-      promise = platform.putChannelInfo(title, description);
-    }
-
-    return promise.then(success => {
+    return platform.putChannelInfo({ title, game, description }).then(success => {
       this.refreshStreamInfo();
       this.createGameAssociation(game);
       return success;

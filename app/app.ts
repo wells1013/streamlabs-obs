@@ -6,17 +6,14 @@ window['eval'] = global.eval = () => {
 
 import 'reflect-metadata';
 import Vue from 'vue';
-import URI from 'urijs';
 
 import { createStore } from './store';
-import { IWindowOptions, WindowsService } from './services/windows';
+import { WindowsService } from './services/windows';
 import { AppService } from './services/app';
 import { ServicesManager } from './services-manager';
 import Utils from './services/utils';
 import electron from 'electron';
-import Raven from 'raven-js';
-import RavenVue from 'raven-js/plugins/vue';
-import RavenConsole from 'raven-js/plugins/console';
+import * as Sentry from '@sentry/browser';
 import VTooltip from 'v-tooltip';
 import Toasted from 'vue-toasted';
 import VueI18n from 'vue-i18n';
@@ -24,6 +21,7 @@ import VModal from 'vue-js-modal';
 import VeeValidate from 'vee-validate';
 import ChildWindow from 'components/windows/ChildWindow.vue';
 import OneOffWindow from 'components/windows/OneOffWindow.vue';
+import electronLog from 'electron-log';
 
 const { ipcRenderer, remote } = electron;
 const slobsVersion = remote.process.env.SLOBS_VERSION;
@@ -61,9 +59,11 @@ if (isProduction) {
 }
 
 if ((isProduction || process.env.SLOBS_REPORT_TO_SENTRY) && !electron.remote.process.env.SLOBS_IPC) {
-  Raven.config(sentryDsn, {
+  Sentry.init({
+    dsn: sentryDsn,
     release: slobsVersion,
-    dataCallback: data => {
+    sampleRate: 0.5,
+    beforeSend: event => {
       // Because our URLs are local files and not publicly
       // accessible URLs, we simply truncate and send only
       // the filename.  Unfortunately sentry's electron support
@@ -74,20 +74,33 @@ if ((isProduction || process.env.SLOBS_REPORT_TO_SENTRY) && !electron.remote.pro
         return splitArray[splitArray.length - 1];
       };
 
-      if (data.exception) {
-        data.exception.values[0].stacktrace.frames.forEach((frame: any) => {
+      if (event.exception) {
+        event.exception.values[0].stacktrace.frames.forEach(frame => {
           frame.filename = normalize(frame.filename);
         });
-
-        data.culprit = data.exception.values[0].stacktrace.frames[0].filename;
       }
 
-      return data;
-    }
-  })
-    .addPlugin(RavenVue, Vue)
-    .addPlugin(RavenConsole, console, { levels: ['error'] })
-    .install();
+      return event;
+    },
+    integrations: [
+      new Sentry.Integrations.Vue({ Vue })
+    ]
+  });
+
+  const oldConsoleError = console.error;
+
+  console.error = (msg: string, ...params: any[]) => {
+    oldConsoleError(msg, ...params);
+
+    Sentry.withScope(scope => {
+      if (params[0] instanceof Error) {
+        scope.setExtra('exception', params[0].stack);
+      }
+
+      scope.setExtra('console-args', JSON.stringify(params, null, 2));
+      Sentry.captureMessage(msg, Sentry.Severity.Error);
+    });
+  };
 }
 
 require('./app.less');
@@ -152,3 +165,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
   });
 });
+
+// EVENT LOGGING
+
+const consoleError = console.error;
+console.error = function (...args: any[]) {
+  logError(args[0]);
+  consoleError.call(console, ...args);
+};
+
+function logError(error: Error | string) {
+  let message = '';
+  let stack = '';
+
+  if (error instanceof Error) {
+    message = error.message;
+    stack = error.stack;
+  } else if (typeof(error) == 'string') {
+    message = error;
+  }
+
+  // send error to the main process via IPC
+  electronLog.error(`Error from ${Utils.getWindowId()} window:
+    ${message}
+    ${stack}
+  `);
+}

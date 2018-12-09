@@ -29,7 +29,7 @@ import { mutation, StatefulService } from 'services/stateful-service';
 import electron from 'electron';
 import Vue from 'vue';
 import Util from 'services/utils';
-import { Subject } from 'rxjs/Subject';
+import { Subject } from 'rxjs';
 
 import BitGoal from 'components/widgets/goal/BitGoal.vue';
 import DonationGoal from 'components/widgets/goal/DonationGoal.vue';
@@ -41,6 +41,11 @@ import StreamBoss from 'components/widgets/StreamBoss.vue';
 import DonationTicker from 'components/widgets/DonationTicker.vue';
 import Credits from 'components/widgets/Credits.vue';
 import EventList from 'components/widgets/EventList.vue';
+import TipJar from 'components/widgets/TipJar.vue';
+import SponsorBanner from 'components/widgets/SponsorBanner.vue';
+import MediaShare from 'components/widgets/MediaShare.vue';
+import AlertBox from 'components/widgets/AlertBox.vue';
+import SpinWheel from 'components/widgets/SpinWheel.vue';
 
 import ChatbotCustomCommandWindow from 'components/page-components/Chatbot/windows/ChatbotCustomCommandWindow.vue';
 import ChatbotDefaultCommandWindow from 'components/page-components/Chatbot/windows/ChatbotDefaultCommandWindow.vue';
@@ -63,10 +68,7 @@ import ChatbotSongRequestPreferencesWindow
 import ChatbotSongRequestOnboardingWindow
   from 'components/page-components/Chatbot/windows/ChatbotSongRequestOnboardingWindow.vue';
 
-import TipJar from 'components/widgets/TipJar.vue';
-import SponsorBanner from 'components/widgets/SponsorBanner.vue';
 import ExecuteInCurrentWindow from '../util/execute-in-current-window';
-import MediaShare from 'components/widgets/MediaShare.vue';
 
 const { ipcRenderer, remote } = electron;
 const BrowserWindow = remote.BrowserWindow;
@@ -113,6 +115,8 @@ export function getComponents() {
     StreamBoss,
     SubGoal,
     MediaShare,
+    AlertBox,
+    SpinWheel,
 
     ChatbotCustomCommandWindow,
     ChatbotDefaultCommandWindow,

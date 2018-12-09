@@ -1,7 +1,6 @@
 import { Service } from 'services/service';
 import electron from 'electron';
-import { Subscription } from 'rxjs/Subscription';
-import { Observable } from 'rxjs/Observable';
+import { Subscription, Observable } from 'rxjs';
 
 /**
  * Shared message interchange format
@@ -146,7 +145,7 @@ export class GuestApiService extends Service {
   }
 
   private safeSend(contents: Electron.WebContents, channel: string, msg: any) {
-    if (!contents.isDestroyed()) {
+    if (contents && !contents.isDestroyed()) {
       contents.send(channel, msg);
     }
   }

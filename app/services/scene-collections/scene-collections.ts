@@ -30,7 +30,7 @@ import {
   ISceneCollectionCreateOptions
 } from '.';
 import { SceneCollectionsStateService } from './state';
-import { Subject } from 'rxjs/Subject';
+import { Subject } from 'rxjs';
 import { TransitionsService, ETransitionType } from 'services/transitions';
 import { $t } from '../i18n';
 
@@ -584,7 +584,7 @@ export class SceneCollectionsService extends Service
       this.transitionsService.deleteAllTransitions();
       this.transitionsService.deleteAllConnections();
     } catch (e) {
-      console.error('Error deloading application state');
+      console.error(new Error('Error deloading application state'));
     }
 
     this.hotkeysService.clearAllHotkeys();

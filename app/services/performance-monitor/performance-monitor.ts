@@ -4,7 +4,7 @@ import { Inject } from '../../util/injector';
 import { NotificationsService, ENotificationType } from 'services/notifications';
 import { ServicesManager } from '../../services-manager';
 import { PerformanceService } from 'services/performance';
-import { Subscription } from 'rxjs/Subscription';
+import { Subscription } from 'rxjs';
 import { JsonrpcService } from '../jsonrpc/jsonrpc';
 import { TroubleshooterService, TIssueCode } from 'services/troubleshooter';
 import { $t } from 'services/i18n';
@@ -90,8 +90,7 @@ export class PerformanceMonitorService extends StatefulService<IMonitorState> {
       const framesEncoded = currentStats.framesEncoded - this.state.framesEncoded;
       const skippedFactor = framesSkipped / framesEncoded;
 
-      if (skippedFactor >= skippedThreshold) {
-
+      if (framesEncoded !== 0 && skippedFactor >= skippedThreshold) {
         this.pushSkippedFramesNotify(skippedFactor);
       }
     }
@@ -101,7 +100,7 @@ export class PerformanceMonitorService extends StatefulService<IMonitorState> {
       const framesRendered = currentStats.framesRendered - this.state.framesRendered;
       const laggedFactor = framesLagged / framesRendered;
 
-      if (laggedFactor >= laggedThreshold) {
+      if (framesRendered !== 0 && laggedFactor >= laggedThreshold) {
         this.pushLaggedFramesNotify(laggedFactor);
       }
     }
