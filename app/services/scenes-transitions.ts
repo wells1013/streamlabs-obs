@@ -32,13 +32,13 @@ export class ScenesTransitionsService extends StatefulService<ISceneTransitionsS
     this.setType('cut_transition');
   }
 
-  @mutation()
-  private SET_TYPE(type: string) {
+  @mutation({ name: 'SET_TYPE' })
+  private doSetType(type: string) {
     this.state.type = type;
   }
 
-  @mutation()
-  private SET_DURATION(duration: number) {
+  @mutation({ name: 'SET_DURATION' })
+  private doSetDuration(duration: number) {
     this.state.duration = duration;
   }
 
@@ -104,12 +104,12 @@ export class ScenesTransitionsService extends StatefulService<ISceneTransitionsS
         oldTransition.release();
       }
 
-      this.SET_TYPE(type);
+      this.doSetType(type);
     }
   }
 
   setDuration(duration: number) {
-    this.SET_DURATION(duration);
+    this.doSetDuration(duration);
   }
 
   getFormData() {

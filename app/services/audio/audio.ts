@@ -197,7 +197,7 @@ export class AudioService extends StatefulService<IAudioSourcesState> implements
       }
     });
 
-    this.UPDATE_AUDIO_SOURCE(sourceId, newPatch);
+    this.updateAudioSource(sourceId, newPatch);
     this.audioSourceUpdated.next(this.state.audioSources[sourceId]);
   }
 
@@ -211,7 +211,7 @@ export class AudioService extends StatefulService<IAudioSourcesState> implements
     const fader = this.fetchFaderDetails(sourceId);
     Object.assign({}, fader, patch);
 
-    this.UPDATE_AUDIO_SOURCE(sourceId, { fader });
+    this.updateAudioSource(sourceId, { fader });
     this.audioSourceUpdated.next(this.state.audioSources[sourceId]);
   }
 
@@ -227,7 +227,7 @@ export class AudioService extends StatefulService<IAudioSourcesState> implements
     this.sourceData[source.sourceId].fader = obsFader;
 
     this.initVolmeterStream(source.sourceId);
-    this.ADD_AUDIO_SOURCE(this.generateAudioSourceData(source.sourceId));
+    this.addAudioSource(this.generateAudioSourceData(source.sourceId));
   }
 
   private initVolmeterStream(sourceId: string) {
@@ -271,21 +271,21 @@ export class AudioService extends StatefulService<IAudioSourcesState> implements
   private removeAudioSource(sourceId: string) {
     this.sourceData[sourceId].volmeter.removeCallback(this.sourceData[sourceId].callbackInfo);
     delete this.sourceData[sourceId];
-    this.REMOVE_AUDIO_SOURCE(sourceId);
+    this.doRemoveAudioSource(sourceId);
   }
 
   @mutation()
-  private ADD_AUDIO_SOURCE(source: IAudioSource) {
+  private addAudioSource(source: IAudioSource) {
     Vue.set(this.state.audioSources, source.sourceId, source);
   }
 
   @mutation()
-  private UPDATE_AUDIO_SOURCE(sourceId: string, patch: Partial<IAudioSource>) {
+  private updateAudioSource(sourceId: string, patch: Partial<IAudioSource>) {
     Object.assign(this.state.audioSources[sourceId], patch);
   }
 
-  @mutation()
-  private REMOVE_AUDIO_SOURCE(sourceId: string) {
+  @mutation({ name: 'REMOVE_AUDIO_SOURCE' })
+  private doRemoveAudioSource(sourceId: string) {
     Vue.delete(this.state.audioSources, sourceId);
   }
 }

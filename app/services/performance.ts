@@ -31,7 +31,7 @@ export class PerformanceService extends StatefulService<IPerformanceState> {
   private intervalId: number;
 
   @mutation()
-  private SET_PERFORMANCE_STATS(stats: IPerformanceState) {
+  private setPerformanceStats(stats: IPerformanceState) {
     Object.keys(stats).forEach(stat => {
       Vue.set(this.state, stat, stats[stat]);
     });
@@ -56,13 +56,13 @@ export class PerformanceService extends StatefulService<IPerformanceState> {
           })
           .reduce((sum, usage) => sum + usage);
 
-        this.SET_PERFORMANCE_STATS(stats);
+        this.setPerformanceStats(stats);
       },
     );
   }
 
   stop() {
     clearInterval(this.intervalId);
-    this.SET_PERFORMANCE_STATS(PerformanceService.initialState);
+    this.setPerformanceStats(PerformanceService.initialState);
   }
 }

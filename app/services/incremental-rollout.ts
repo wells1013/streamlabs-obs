@@ -28,7 +28,7 @@ export class IncrementalRolloutService extends StatefulService<IIncrementalRollo
   }
 
   @mutation()
-  private SET_AVAILABLE_FEATURES(features: string[]) {
+  private setAvailableFeatures(features: string[]) {
     this.state.availableFeatures = features;
   }
 
@@ -53,12 +53,12 @@ export class IncrementalRolloutService extends StatefulService<IIncrementalRollo
         .then(handleErrors)
         .then(response => response.json())
         .then(response => {
-          this.SET_AVAILABLE_FEATURES(response.features);
+          this.setAvailableFeatures(response.features);
         });
     }
   }
 
   resetAvailableFeatures() {
-    this.SET_AVAILABLE_FEATURES([]);
+    this.setAvailableFeatures([]);
   }
 }

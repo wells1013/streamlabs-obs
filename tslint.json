@@ -6,9 +6,7 @@
     // We do imports where our files are suffixed .vue and this rule would expect we import as e.g. MainVue
     "import-name": false,
     // TODO: fix instances instead
-    "no-increment-decrement": false,
-    // This is no longer required on refactor/mutation-names branch TODO: remove
-    "function-name": false
+    "no-increment-decrement": false
   }
 }
 

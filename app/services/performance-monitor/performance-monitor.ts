@@ -109,7 +109,7 @@ export class PerformanceMonitorService extends StatefulService<IMonitorState> {
       }
     }
 
-    this.SET_STATE(currentStats);
+    this.setState(currentStats);
   }
 
   private pushSkippedFramesNotify(factor: number) {
@@ -165,7 +165,7 @@ export class PerformanceMonitorService extends StatefulService<IMonitorState> {
   }
 
   @mutation()
-  private SET_STATE(stats: IMonitorState) {
+  private setState(stats: IMonitorState) {
     this.state = stats;
   }
 }

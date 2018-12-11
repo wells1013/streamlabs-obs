@@ -119,17 +119,17 @@ export class FacemasksService extends PersistentStatefulService<IFacemasksServic
         this.checkFacemaskSettings(response);
       })
       .catch(err => {
-        this.SET_ACTIVE(false);
+        this.setActive(false);
       });
   }
 
   activate() {
-    this.SET_ACTIVE(true);
+    this.setActive(true);
     this.initSocketConnection();
   }
 
   notifyFailure() {
-    this.SET_ACTIVE(false);
+    this.setActive(false);
     const ok = electron.remote.dialog.showMessageBox(
       electron.remote.getCurrentWindow(),
       {
@@ -249,10 +249,10 @@ export class FacemasksService extends PersistentStatefulService<IFacemasksServic
       });
 
       if (settings.device.name && settings.device.value) {
-        this.SET_DEVICE(settings.device.name, settings.device.value);
+        this.setDevice(settings.device.name, settings.device.value);
         this.setupFilter();
       } else {
-        this.SET_ACTIVE(false);
+        this.setActive(false);
       }
 
       const missingMasks = uuids.filter(mask => this.checkDownloaded(mask.uuid));
@@ -271,7 +271,7 @@ export class FacemasksService extends PersistentStatefulService<IFacemasksServic
           this.notifyFailure();
         });
     } else {
-      this.SET_ACTIVE(false);
+      this.setActive(false);
     }
   }
 
@@ -437,7 +437,7 @@ export class FacemasksService extends PersistentStatefulService<IFacemasksServic
         if (readError) reject(readError);
         try {
           const maskData = JSON.parse(data);
-          this.ADD_MODTIME(uuid, maskData.modtime, maskData.is_intro);
+          this.addModTime(uuid, maskData.modtime, maskData.is_intro);
           resolve();
         } catch (parseError) {
           fs.unlinkSync(maskPath);
@@ -454,7 +454,7 @@ export class FacemasksService extends PersistentStatefulService<IFacemasksServic
 
   enableMask(uuid: string) {
     this.downloadMask(uuid).then(modtime => {
-      this.ADD_MODTIME(uuid, modtime, false);
+      this.addModTime(uuid, modtime, false);
       this.fetchInstallUpdate(uuid);
     });
   }
@@ -465,7 +465,7 @@ export class FacemasksService extends PersistentStatefulService<IFacemasksServic
       this.downloadMask(uuid, update)
         .then(modtime => {
           if (modtime) {
-            this.ADD_MODTIME(uuid, modtime, intro);
+            this.addModTime(uuid, modtime, intro);
             this.fetchInstallUpdate(uuid);
           }
           resolve();
@@ -521,18 +521,18 @@ export class FacemasksService extends PersistentStatefulService<IFacemasksServic
     return this.state.active;
   }
 
-  @mutation()
-  private ADD_MODTIME(uuid: string, modtime: number, intro: boolean) {
+  @mutation({ name: 'ADD_MODTIME' })
+  private addModTime(uuid: string, modtime: number, intro: boolean) {
     Vue.set(this.state.modtimeMap, uuid, { modtime, intro });
   }
 
   @mutation()
-  private SET_ACTIVE(active: boolean) {
+  private setActive(active: boolean) {
     this.state.active = active;
   }
 
   @mutation()
-  private SET_DEVICE(name: string, value: string) {
+  private setDevice(name: string, value: string) {
     this.state.device = { name, value };
   }
 

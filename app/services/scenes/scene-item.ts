@@ -164,7 +164,7 @@ export class SceneItem extends SceneItemNode implements ISceneItemApi {
       this.getObsSceneItem().visible = newSettings.visible;
     }
 
-    this.UPDATE({ sceneItemId: this.sceneItemId, ...changed });
+    this.update({ sceneItemId: this.sceneItemId, ...changed });
 
     this.scenesService.itemUpdated.next(this.getModel());
   }
@@ -199,7 +199,7 @@ export class SceneItem extends SceneItemNode implements ISceneItemApi {
 
   loadAttributes() {
     const { position, scale, visible, crop, rotation } = this.getObsSceneItem();
-    this.UPDATE({
+    this.update({
       visible,
       sceneItemId: this.sceneItemId,
       transform: {
@@ -216,7 +216,7 @@ export class SceneItem extends SceneItemNode implements ISceneItemApi {
     const position = { x: customSceneItem.x, y: customSceneItem.y };
     const crop = customSceneItem.crop;
 
-    this.UPDATE({
+    this.update({
       visible,
       sceneItemId: this.sceneItemId,
       transform: {
@@ -380,7 +380,7 @@ export class SceneItem extends SceneItemNode implements ISceneItemApi {
   }
 
   @mutation()
-  private UPDATE(patch: { sceneItemId: string } & IPartialSettings) {
+  private update(patch: { sceneItemId: string } & IPartialSettings) {
     merge(this.sceneItemState, patch);
   }
 }

@@ -163,7 +163,7 @@ export class ChatbotApiService extends PersistentStatefulService<IChatbotApiServ
         .then(handleErrors)
         .then(response => response.json())
         .then((response: IChatbotAuthResponse) => {
-          this.LOGIN(response);
+          this.doLogin(response);
           resolve(true);
         })
         .catch(err => {
@@ -173,7 +173,7 @@ export class ChatbotApiService extends PersistentStatefulService<IChatbotApiServ
   }
 
   logOut() {
-    this.LOGOUT();
+    this.doLogout();
   }
 
   apiEndpoint(route: String, versionIncluded?: Boolean) {
@@ -218,7 +218,7 @@ export class ChatbotApiService extends PersistentStatefulService<IChatbotApiServ
     // requires log in
     return this.api('GET', `socket-token?rooms=${rooms.join(',')}`, {}).then(
       (response: IChatbotSocketAuthResponse) => {
-        this.LOGIN_TO_SOCKET(response);
+        this.doLoginToSocket(response);
       },
     );
   }
@@ -229,11 +229,11 @@ export class ChatbotApiService extends PersistentStatefulService<IChatbotApiServ
 
     socket.on('queue.open', (response: IQueueStateResponse) => {
       // queue open
-      this.UPDATE_QUEUE_STATE(response);
+      this.updateQueueState(response);
     });
     socket.on('queue.close', (response: IQueueStateResponse) => {
       // queue open
-      this.UPDATE_QUEUE_STATE(response);
+      this.updateQueueState(response);
     });
     socket.on('queue.join', () => {
       // someone joins queue, refetch queue entries
@@ -276,7 +276,7 @@ export class ChatbotApiService extends PersistentStatefulService<IChatbotApiServ
       });
 
       // all status online.
-      this.UPDATE_GLOBALLY_ENABLED(
+      this.updateGloballyEnabled(
         response.worker.status === 'Online' &&
           response.worker.type === 'Full' &&
           response.clients.status === 'Online' &&
@@ -287,28 +287,28 @@ export class ChatbotApiService extends PersistentStatefulService<IChatbotApiServ
 
   fetchDefaultCommands() {
     return this.api('GET', 'commands/default', {}).then((response: IDafaultCommandsResponse) => {
-      this.UPDATE_DEFAULT_COMMANDS(response);
+      this.updateDefaultCommands(response);
     });
   }
 
   fetchCustomCommands(page = this.state.customCommandsResponse.pagination.current, query = '') {
     return this.api('GET', `commands?page=${page}&query=${query}`, {}).then(
       (response: ICustomCommandsResponse) => {
-        this.UPDATE_CUSTOM_COMMANDS(response);
+        this.updateCustomCommands(response);
       },
     );
   }
 
   fetchCommandVariables() {
     return this.api('GET', 'commands/variables', {}).then((response: ICommandVariablesResponse) => {
-      this.UPDATE_COMMAND_VARIABLES(response);
+      this.updateCommandVariables(response);
     });
   }
 
   fetchTimers(page = this.state.timersResponse.pagination.current, query = '') {
     return this.api('GET', `timers?page=${page}&query=${query}`, {}).then(
       (response: ITimersResponse) => {
-        this.UPDATE_TIMERS(response);
+        this.updateTimers(response);
       },
     );
   }
@@ -316,7 +316,7 @@ export class ChatbotApiService extends PersistentStatefulService<IChatbotApiServ
   fetchChatAlerts() {
     return this.api('GET', 'settings/chat-notifications', {}).then(
       (response: IChatAlertsResponse) => {
-        this.UPDATE_CHAT_ALERTS(response);
+        this.doUpdateChartAlerts(response);
       },
     );
   }
@@ -324,7 +324,7 @@ export class ChatbotApiService extends PersistentStatefulService<IChatbotApiServ
   fetchCapsProtection() {
     return this.api('GET', 'settings/caps-protection', {}).then(
       (response: ICapsProtectionResponse) => {
-        this.UPDATE_CAPS_PROTECTION(response);
+        this.doUpdateCapsProtection(response);
       },
     );
   }
@@ -332,7 +332,7 @@ export class ChatbotApiService extends PersistentStatefulService<IChatbotApiServ
   fetchSymbolProtection() {
     return this.api('GET', 'settings/symbol-protection', {}).then(
       (response: ISymbolProtectionResponse) => {
-        this.UPDATE_SYMBOL_PROTECTION(response);
+        this.doUpdateSymbolProtection(response);
       },
     );
   }
@@ -340,7 +340,7 @@ export class ChatbotApiService extends PersistentStatefulService<IChatbotApiServ
   fetchLinkProtection() {
     return this.api('GET', 'settings/link-protection', {}).then(
       (response: ILinkProtectionResponse) => {
-        this.UPDATE_LINK_PROTECTION(response);
+        this.doUpdateLinkProtection(response);
       },
     );
   }
@@ -348,7 +348,7 @@ export class ChatbotApiService extends PersistentStatefulService<IChatbotApiServ
   fetchWordProtection() {
     return this.api('GET', 'settings/words-protection', {}).then(
       (response: IWordProtectionResponse) => {
-        this.UPDATE_WORD_PROTECTION(response);
+        this.doUpdateWordProtection(response);
       },
     );
   }
@@ -356,33 +356,33 @@ export class ChatbotApiService extends PersistentStatefulService<IChatbotApiServ
   fetchQuotes(page = this.state.quotesResponse.pagination.current, query = '') {
     return this.api('GET', `quotes?page=${page}&query=${query}`, {}).then(
       (response: IQuotesResponse) => {
-        this.UPDATE_QUOTES(response);
+        this.updateQuotes(response);
       },
     );
   }
 
   fetchQuotePreferences() {
     return this.api('GET', 'settings/quotes', {}).then((response: IQuotePreferencesResponse) => {
-      this.UPDATE_QUOTE_PREFERENCES(response);
+      this.doUpdateQuotePreferences(response);
     });
   }
 
   fetchQueuePreferences() {
     return this.api('GET', 'settings/queue', {}).then((response: IQueuePreferencesResponse) => {
-      this.UPDATE_QUEUE_PREFERENCES(response);
+      this.doUpdateQueuePreferences(response);
     });
   }
 
   fetchQueueState() {
     return this.api('GET', 'queue', {}).then((response: IQueueStateResponse) => {
-      this.UPDATE_QUEUE_STATE(response);
+      this.updateQueueState(response);
     });
   }
 
   fetchQueueEntries(page = this.state.queueEntriesResponse.pagination.current, query = '') {
     return this.api('GET', `queue/entries?page=${page}&query=${query}`, {}).then(
       (response: IQueueEntriesResponse) => {
-        this.UPDATE_QUEUE_ENTRIES(response);
+        this.updateQueueEntries(response);
       },
     );
   }
@@ -390,21 +390,21 @@ export class ChatbotApiService extends PersistentStatefulService<IChatbotApiServ
   fetchQueuePicked(page = this.state.queuePickedResponse.pagination.current) {
     return this.api('GET', `queue/picked?page=${page}`, {}).then(
       (response: IQueuePickedResponse) => {
-        this.UPDATE_QUEUE_PICKED(response);
+        this.updateQueuePicked(response);
       },
     );
   }
 
   fetchSongRequestPreferencesData() {
     return this.mediaShareService.fetchData().then((response: IMediaShareData) => {
-      this.UPDATE_SONG_REQUEST_PREFERENCES(response as ISongRequestPreferencesResponse);
+      this.updateSongRequestPreferences(response as ISongRequestPreferencesResponse);
     });
   }
 
   fetchSongRequest() {
     // mostly used for enable/disable only
     return this.api('GET', 'settings/songrequest', {}).then((response: ISongRequestResponse) => {
-      this.UPDATE_SONG_REQUEST(response);
+      this.doUpdateSongRequest(response);
     });
   }
 
@@ -423,18 +423,18 @@ export class ChatbotApiService extends PersistentStatefulService<IChatbotApiServ
       ) => {
         switch (slug) {
           case 'chat-notifications':
-            this.UPDATE_CHAT_ALERTS(response as IChatAlertsResponse);
+            this.doUpdateChartAlerts(response as IChatAlertsResponse);
           case 'caps-protection':
-            this.UPDATE_CAPS_PROTECTION(response as ICapsProtectionResponse);
+            this.doUpdateCapsProtection(response as ICapsProtectionResponse);
             break;
           case 'symbol-protection':
-            this.UPDATE_SYMBOL_PROTECTION(response as ISymbolProtectionResponse);
+            this.doUpdateSymbolProtection(response as ISymbolProtectionResponse);
             break;
           case 'link-protection':
-            this.UPDATE_LINK_PROTECTION(response as ILinkProtectionResponse);
+            this.doUpdateLinkProtection(response as ILinkProtectionResponse);
             break;
           case 'words-protection':
-            this.UPDATE_WORD_PROTECTION(response as IWordProtectionResponse);
+            this.doUpdateWordProtection(response as IWordProtectionResponse);
             break;
         }
         return Promise.resolve(response);
@@ -471,7 +471,7 @@ export class ChatbotApiService extends PersistentStatefulService<IChatbotApiServ
   resetDefaultCommands() {
     return this.api('POST', 'commands/default/reset', {}).then(
       (response: IDafaultCommandsResponse) => {
-        this.UPDATE_DEFAULT_COMMANDS(response);
+        this.updateDefaultCommands(response);
       },
     );
   }
@@ -691,109 +691,109 @@ export class ChatbotApiService extends PersistentStatefulService<IChatbotApiServ
   // Mutations
   //
 
-  @mutation()
-  private LOGIN(response: IChatbotAuthResponse) {
+  @mutation({ name: 'LOGIN' })
+  private doLogin(response: IChatbotAuthResponse) {
     Vue.set(this.state, 'apiToken', response.api_token);
   }
 
-  @mutation()
-  private LOGIN_TO_SOCKET(response: IChatbotSocketAuthResponse) {
+  @mutation({ name: 'LOGIN_TO_SOCKET' })
+  private doLoginToSocket(response: IChatbotSocketAuthResponse) {
     Vue.set(this.state, 'socketToken', response.socket_token);
   }
 
-  @mutation()
-  private LOGOUT() {
+  @mutation({ name: 'LOGOUT' })
+  private doLogout() {
     Vue.set(this.state, 'apiToken', null);
     Vue.set(this.state, 'socketToken', null);
   }
 
   @mutation()
-  private UPDATE_GLOBALLY_ENABLED(enabled: boolean) {
+  private updateGloballyEnabled(enabled: boolean) {
     Vue.set(this.state, 'globallyEnabled', enabled);
   }
 
   @mutation()
-  private UPDATE_DEFAULT_COMMANDS(response: IDafaultCommandsResponse) {
+  private updateDefaultCommands(response: IDafaultCommandsResponse) {
     Vue.set(this.state, 'defaultCommandsResponse', response);
   }
 
   @mutation()
-  private UPDATE_CUSTOM_COMMANDS(response: ICustomCommandsResponse) {
+  private updateCustomCommands(response: ICustomCommandsResponse) {
     Vue.set(this.state, 'customCommandsResponse', response);
   }
 
   @mutation()
-  private UPDATE_COMMAND_VARIABLES(response: ICommandVariablesResponse) {
+  private updateCommandVariables(response: ICommandVariablesResponse) {
     Vue.set(this.state, 'commandVariablesResponse', response);
   }
 
   @mutation()
-  private UPDATE_TIMERS(response: ITimersResponse) {
+  private updateTimers(response: ITimersResponse) {
     Vue.set(this.state, 'timersResponse', response);
   }
 
-  @mutation()
-  private UPDATE_CHAT_ALERTS(response: IChatAlertsResponse) {
+  @mutation({ name: 'UPDATE_CHAT_ALERTS' })
+  private doUpdateChartAlerts(response: IChatAlertsResponse) {
     Vue.set(this.state, 'chatAlertsResponse', response);
   }
 
-  @mutation()
-  private UPDATE_CAPS_PROTECTION(response: ICapsProtectionResponse) {
+  @mutation({ name: 'UPDATE_CAPS_PROTECTION' })
+  private doUpdateCapsProtection(response: ICapsProtectionResponse) {
     Vue.set(this.state, 'capsProtectionResponse', response);
   }
 
-  @mutation()
-  private UPDATE_SYMBOL_PROTECTION(response: ISymbolProtectionResponse) {
+  @mutation({ name: 'UPDATE_SYMBOL_PROTECTION' })
+  private doUpdateSymbolProtection(response: ISymbolProtectionResponse) {
     Vue.set(this.state, 'symbolProtectionResponse', response);
   }
 
-  @mutation()
-  private UPDATE_LINK_PROTECTION(response: ILinkProtectionResponse) {
+  @mutation({ name: 'UPDATE_LINK_PROTECTION' })
+  private doUpdateLinkProtection(response: ILinkProtectionResponse) {
     Vue.set(this.state, 'linkProtectionResponse', response);
   }
 
-  @mutation()
-  private UPDATE_WORD_PROTECTION(response: IWordProtectionResponse) {
+  @mutation({ name: 'UPDATE_WORD_PROTECTION' })
+  private doUpdateWordProtection(response: IWordProtectionResponse) {
     Vue.set(this.state, 'wordProtectionResponse', response);
   }
 
   @mutation()
-  private UPDATE_QUOTES(response: IQuotesResponse) {
+  private updateQuotes(response: IQuotesResponse) {
     Vue.set(this.state, 'quotesResponse', response);
   }
 
-  @mutation()
-  private UPDATE_QUOTE_PREFERENCES(response: IQuotePreferencesResponse) {
+  @mutation({ name: 'UPDATE_QUOTE_PREFERENCES' })
+  private doUpdateQuotePreferences(response: IQuotePreferencesResponse) {
     Vue.set(this.state, 'quotePreferencesResponse', response);
   }
 
-  @mutation()
-  private UPDATE_QUEUE_PREFERENCES(response: IQueuePreferencesResponse) {
+  @mutation({ name: 'UPDATE_QUEUE_PREFERENCES' })
+  private doUpdateQueuePreferences(response: IQueuePreferencesResponse) {
     Vue.set(this.state, 'queuePreferencesResponse', response);
   }
 
   @mutation()
-  private UPDATE_QUEUE_STATE(response: IQueueStateResponse) {
+  private updateQueueState(response: IQueueStateResponse) {
     Vue.set(this.state, 'queueStateResponse', response);
   }
 
   @mutation()
-  private UPDATE_QUEUE_ENTRIES(response: IQueueEntriesResponse) {
+  private updateQueueEntries(response: IQueueEntriesResponse) {
     Vue.set(this.state, 'queueEntriesResponse', response);
   }
 
   @mutation()
-  private UPDATE_QUEUE_PICKED(response: IQueuePickedResponse) {
+  private updateQueuePicked(response: IQueuePickedResponse) {
     Vue.set(this.state, 'queuePickedResponse', response);
   }
 
   @mutation()
-  private UPDATE_SONG_REQUEST_PREFERENCES(response: ISongRequestPreferencesResponse) {
+  private updateSongRequestPreferences(response: ISongRequestPreferencesResponse) {
     Vue.set(this.state, 'songRequestPreferencesResponse', response);
   }
 
-  @mutation()
-  private UPDATE_SONG_REQUEST(response: ISongRequestResponse) {
+  @mutation({ name: 'UPDATE_SONG_REQUEST' })
+  private doUpdateSongRequest(response: ISongRequestResponse) {
     Vue.set(this.state, 'songRequestResponse', response);
   }
 }
@@ -811,11 +811,11 @@ export class ChatbotCommonService extends PersistentStatefulService<IChatbotComm
   };
 
   hideModBanner() {
-    this.HIDE_MOD_BANNER();
+    this.doHideModBanner();
   }
 
   showModBanner() {
-    this.SHOW_MOD_BANNER();
+    this.doShowModBanner();
   }
 
   closeChildWindow() {
@@ -824,7 +824,7 @@ export class ChatbotCommonService extends PersistentStatefulService<IChatbotComm
 
   openCustomCommandWindow(command?: ICustomCommand) {
     if (command) {
-      this.SET_CUSTOM_COMAND_TO_UPDATE(command);
+      this.setCustomCommandToUpdate(command);
     }
     this.windowsService.showWindow({
       componentName: 'ChatbotCustomCommandWindow',
@@ -838,7 +838,7 @@ export class ChatbotCommonService extends PersistentStatefulService<IChatbotComm
 
   openDefaultCommandWindow(command: IDefaultCommand) {
     if (command) {
-      this.SET_DEFAULT_COMAND_TO_UPDATE(command);
+      this.setDefaultCommandToUpdate(command);
     }
     this.windowsService.showWindow({
       componentName: 'ChatbotDefaultCommandWindow',
@@ -852,7 +852,7 @@ export class ChatbotCommonService extends PersistentStatefulService<IChatbotComm
 
   openTimerWindow(timer?: IChatbotTimer) {
     if (timer) {
-      this.SET_TIMER_TO_UPDATE(timer);
+      this.setTimerToUpdate(timer);
     }
     this.windowsService.showWindow({
       componentName: 'ChatbotTimerWindow',
@@ -921,7 +921,7 @@ export class ChatbotCommonService extends PersistentStatefulService<IChatbotComm
 
   openQuoteWindow(quote?: IQuote) {
     if (quote) {
-      this.SET_QUOTE_TO_UPDATE(quote);
+      this.setQuoteToUpdate(quote);
     }
     this.windowsService.showWindow({
       componentName: 'ChatbotQuoteWindow',
@@ -978,33 +978,33 @@ export class ChatbotCommonService extends PersistentStatefulService<IChatbotComm
     });
   }
 
-  @mutation()
-  private HIDE_MOD_BANNER() {
+  @mutation({ name: 'HIDE_MOD_BANNER' })
+  private doHideModBanner() {
     Vue.set(this.state, 'modBannerVisible', false);
   }
 
-  @mutation()
-  private SHOW_MOD_BANNER() {
+  @mutation({ name: 'SHOW_MOD_BANNER' })
+  private doShowModBanner() {
     Vue.set(this.state, 'modBannerVisible', true);
   }
 
   @mutation()
-  private SET_CUSTOM_COMAND_TO_UPDATE(command: ICustomCommand) {
+  private setCustomCommandToUpdate(command: ICustomCommand) {
     Vue.set(this.state, 'customCommandToUpdate', command);
   }
 
   @mutation()
-  private SET_DEFAULT_COMAND_TO_UPDATE(command: IDefaultCommand) {
+  private setDefaultCommandToUpdate(command: IDefaultCommand) {
     Vue.set(this.state, 'defaultCommandToUpdate', command);
   }
 
   @mutation()
-  private SET_TIMER_TO_UPDATE(timer: IChatbotTimer) {
+  private setTimerToUpdate(timer: IChatbotTimer) {
     Vue.set(this.state, 'timerToUpdate', timer);
   }
 
   @mutation()
-  private SET_QUOTE_TO_UPDATE(quote: IQuote) {
+  private setQuoteToUpdate(quote: IQuote) {
     Vue.set(this.state, 'quoteToUpdate', quote);
   }
 }

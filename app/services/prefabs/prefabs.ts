@@ -87,7 +87,7 @@ export class PrefabsService extends PersistentStatefulService<IPrefabsServiceSta
         },
       },
     };
-    this.REGISTER_PREFAB(prefabModel);
+    this.registerPrefab(prefabModel);
     return this.getPrefab(id);
   }
 
@@ -105,7 +105,7 @@ export class PrefabsService extends PersistentStatefulService<IPrefabsServiceSta
   }
 
   removePrefab(id: string) {
-    this.REMOVE_PREFAB(id);
+    this.doRemovePrefab(id);
   }
 
   removePrefabs() {
@@ -123,12 +123,12 @@ export class PrefabsService extends PersistentStatefulService<IPrefabsServiceSta
   }
 
   @mutation()
-  private REGISTER_PREFAB(prefabModel: IPrefab) {
+  private registerPrefab(prefabModel: IPrefab) {
     Vue.set(this.state.prefabs, prefabModel.id, prefabModel);
   }
 
-  @mutation()
-  private REMOVE_PREFAB(id: string) {
+  @mutation({ name: 'REMOVE_PREFAB' })
+  private doRemovePrefab(id: string) {
     Vue.delete(this.state.prefabs, id);
   }
 }

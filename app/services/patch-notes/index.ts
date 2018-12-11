@@ -57,7 +57,7 @@ export class PatchNotesService extends PersistentStatefulService<IPatchNotesStat
     // The user has already seen the current patch notes
     if (currentVersion === this.state.lastVersionSeen) return;
 
-    this.SET_LAST_VERSION_SEEN(currentVersion);
+    this.setLastVersionSeen(currentVersion);
 
     // Only show the actual patch notes if they weren't onboarded
     if (!onboarded) this.navigationService.navigate('PatchNotes');
@@ -68,7 +68,7 @@ export class PatchNotesService extends PersistentStatefulService<IPatchNotesStat
   }
 
   @mutation()
-  private SET_LAST_VERSION_SEEN(version: string) {
+  private setLastVersionSeen(version: string) {
     this.state.lastVersionSeen = version;
   }
 }

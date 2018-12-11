@@ -111,7 +111,7 @@ export class TransitionsService extends StatefulService<ITransitionsState> {
   enableStudioMode() {
     if (this.state.studioMode) return;
 
-    this.SET_STUDIO_MODE(true);
+    this.setStudioMode(true);
     this.studioModeChanged.next(true);
 
     if (!this.studioModeTransition) this.createStudioModeTransition();
@@ -127,7 +127,7 @@ export class TransitionsService extends StatefulService<ITransitionsState> {
   disableStudioMode() {
     if (!this.state.studioMode) return;
 
-    this.SET_STUDIO_MODE(false);
+    this.setStudioMode(false);
     this.studioModeChanged.next(false);
 
     this.getCurrentTransition().set(this.scenesService.activeScene.getObsScene());
@@ -284,9 +284,9 @@ export class TransitionsService extends StatefulService<ITransitionsState> {
     this.obsTransitions[id] = transition;
     this.propertiesManagers[id] = manager;
 
-    if (!this.state.defaultTransitionId) this.MAKE_DEFAULT(id);
+    if (!this.state.defaultTransitionId) this.makeDefault(id);
 
-    this.ADD_TRANSITION(id, name, type, options.duration || 300);
+    this.addTransition(id, name, type, options.duration || 300);
     return this.getTransition(id);
   }
 
@@ -305,11 +305,11 @@ export class TransitionsService extends StatefulService<ITransitionsState> {
     this.obsTransitions[id] = obs.TransitionFactory.create(newType, id);
     this.propertiesManagers[id] = new DefaultManager(this.obsTransitions[id], {});
 
-    this.UPDATE_TRANSITION(id, { type: newType });
+    this.updateTransition(id, { type: newType });
   }
 
   renameTransition(id: string, newName: string) {
-    this.UPDATE_TRANSITION(id, { name: newName });
+    this.updateTransition(id, { name: newName });
   }
 
   deleteTransition(id: string) {
@@ -318,7 +318,7 @@ export class TransitionsService extends StatefulService<ITransitionsState> {
 
     this.obsTransitions[id].release();
     delete this.obsTransitions[id];
-    this.DELETE_TRANSITION(id);
+    this.doDeleteTransition(id);
   }
 
   /**
@@ -342,7 +342,7 @@ export class TransitionsService extends StatefulService<ITransitionsState> {
   }
 
   setDefaultTransition(id: string) {
-    this.MAKE_DEFAULT(id);
+    this.makeDefault(id);
   }
 
   getTransition(id: string) {
@@ -351,7 +351,7 @@ export class TransitionsService extends StatefulService<ITransitionsState> {
 
   addConnection(fromId: string, toId: string, transitionId: string) {
     const id = uuid();
-    this.ADD_CONNECTION({
+    this.doAddConnection({
       id,
       transitionId,
       fromSceneId: fromId,
@@ -361,11 +361,11 @@ export class TransitionsService extends StatefulService<ITransitionsState> {
   }
 
   updateConnection(id: string, patch: Partial<ITransitionConnection>) {
-    this.UPDATE_CONNECTION(id, patch);
+    this.doUpdateConnection(id, patch);
   }
 
   deleteConnection(id: string) {
-    this.DELETE_CONNECTION(id);
+    this.doDeleteConnection(id);
   }
 
   /**
@@ -388,7 +388,7 @@ export class TransitionsService extends StatefulService<ITransitionsState> {
   }
 
   setDuration(id: string, duration: number) {
-    this.UPDATE_TRANSITION(id, { duration });
+    this.updateTransition(id, { duration });
   }
 
   showSceneTransitions() {
@@ -403,7 +403,7 @@ export class TransitionsService extends StatefulService<ITransitionsState> {
   }
 
   @mutation()
-  private ADD_TRANSITION(id: string, name: string, type: ETransitionType, duration: number) {
+  private addTransition(id: string, name: string, type: ETransitionType, duration: number) {
     this.state.transitions.push({
       id,
       name,
@@ -413,7 +413,7 @@ export class TransitionsService extends StatefulService<ITransitionsState> {
   }
 
   @mutation()
-  private UPDATE_TRANSITION(id: string, patch: Partial<ITransition>) {
+  private updateTransition(id: string, patch: Partial<ITransition>) {
     const transition = this.state.transitions.find(tran => tran.id === id);
 
     if (transition) {
@@ -423,8 +423,8 @@ export class TransitionsService extends StatefulService<ITransitionsState> {
     }
   }
 
-  @mutation()
-  private DELETE_TRANSITION(id: string) {
+  @mutation({ name: 'DELETE_TRANSITION' })
+  private doDeleteTransition(id: string) {
     this.state.transitions = this.state.transitions.filter(tran => tran.id !== id);
 
     if (this.state.defaultTransitionId === id) {
@@ -437,17 +437,17 @@ export class TransitionsService extends StatefulService<ITransitionsState> {
   }
 
   @mutation()
-  private MAKE_DEFAULT(id: string) {
+  private makeDefault(id: string) {
     this.state.defaultTransitionId = id;
   }
 
-  @mutation()
-  private ADD_CONNECTION(connection: ITransitionConnection) {
+  @mutation({ name: 'ADD_CONNECTION' })
+  private doAddConnection(connection: ITransitionConnection) {
     this.state.connections.push(connection);
   }
 
-  @mutation()
-  private UPDATE_CONNECTION(id: string, patch: Partial<ITransitionConnection>) {
+  @mutation({ name: 'UPDATE_CONNECTION' })
+  private doUpdateConnection(id: string, patch: Partial<ITransitionConnection>) {
     const connection = this.state.connections.find(conn => conn.id === id);
 
     if (connection) {
@@ -457,13 +457,13 @@ export class TransitionsService extends StatefulService<ITransitionsState> {
     }
   }
 
-  @mutation()
-  private DELETE_CONNECTION(id: string) {
+  @mutation({ name: 'DELETE_CONNECTION' })
+  private doDeleteConnection(id: string) {
     this.state.connections = this.state.connections.filter(conn => conn.id !== id);
   }
 
   @mutation()
-  private SET_STUDIO_MODE(enabled: boolean) {
+  private setStudioMode(enabled: boolean) {
     this.state.studioMode = enabled;
   }
 }

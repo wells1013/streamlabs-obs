@@ -115,28 +115,28 @@ export class OnboardingService extends StatefulService<IOnboardingServiceState> 
     // to do this because Twitch adds a captcha when we try to
     // actually log in from integration tests.
     electron.ipcRenderer.on('testing-fakeAuth', () => {
-      this.COMPLETE_STEP('Connect');
-      this.SET_CURRENT_STEP('ObsImport');
+      this.completeStep('Connect');
+      this.setCurrentStep('ObsImport');
     });
   }
 
   @mutation()
-  SET_CURRENT_STEP(step: TOnboardingStep) {
+  setCurrentStep(step: TOnboardingStep) {
     this.state.currentStep = step;
   }
 
   @mutation()
-  RESET_COMPLETED_STEPS() {
+  resetCompletedSteps() {
     this.state.completedSteps = [];
   }
 
   @mutation()
-  SET_OPTIONS(options: Partial<IOnboardingOptions>) {
+  setOptions(options: Partial<IOnboardingOptions>) {
     Object.assign(this.state.options, options);
   }
 
   @mutation()
-  COMPLETE_STEP(step: TOnboardingStep) {
+  completeStep(step: TOnboardingStep) {
     this.state.completedSteps.push(step);
   }
 
@@ -155,7 +155,7 @@ export class OnboardingService extends StatefulService<IOnboardingServiceState> 
   // Completes the current step and moves on to the
   // next eligible step.
   next() {
-    this.COMPLETE_STEP(this.state.currentStep);
+    this.completeStep(this.state.currentStep);
     this.goToNextStep(ONBOARDING_STEPS[this.state.currentStep].next);
   }
 
@@ -177,9 +177,9 @@ export class OnboardingService extends StatefulService<IOnboardingServiceState> 
 
     const step = options.isOptimize ? 'OptimizeA' : 'Connect';
 
-    this.RESET_COMPLETED_STEPS();
-    this.SET_OPTIONS(actualOptions);
-    this.SET_CURRENT_STEP(step);
+    this.resetCompletedSteps();
+    this.setOptions(actualOptions);
+    this.setCurrentStep(step);
     this.navigationService.navigate('Onboarding');
   }
 
@@ -202,7 +202,7 @@ export class OnboardingService extends StatefulService<IOnboardingServiceState> 
     const stepObj = ONBOARDING_STEPS[step];
 
     if (stepObj.isEligible(this)) {
-      this.SET_CURRENT_STEP(step);
+      this.setCurrentStep(step);
     } else {
       this.goToNextStep(stepObj.next);
     }

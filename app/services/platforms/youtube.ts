@@ -46,7 +46,7 @@ export class YoutubeService extends StatefulService<IYoutubeServiceState>
   }
 
   @mutation()
-  private SET_ENABLED_STATUS(enabled: boolean) {
+  private setEnabledStatus(enabled: boolean) {
     this.state.liveStreamingEnabled = enabled;
   }
 
@@ -84,7 +84,7 @@ export class YoutubeService extends StatefulService<IYoutubeServiceState>
     return fetch(request)
       .then(handleErrors)
       .then(response => {
-        this.SET_ENABLED_STATUS(true);
+        this.setEnabledStatus(true);
       })
       .catch(err => {
         this.handleForbidden(err);
@@ -114,7 +114,7 @@ export class YoutubeService extends StatefulService<IYoutubeServiceState>
           json.error.errors &&
           json.error.errors[0].reason === 'liveStreamingNotEnabled'
         ) {
-          this.SET_ENABLED_STATUS(false);
+          this.setEnabledStatus(false);
         }
       });
     }

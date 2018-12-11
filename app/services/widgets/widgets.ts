@@ -226,7 +226,7 @@ export class WidgetsService extends StatefulService<IWidgetSourcesState>
     if (source.getPropertiesManagerType() !== 'widget') return;
     const widgetType = source.getPropertiesManagerSettings().widgetType;
 
-    this.ADD_WIDGET_SOURCE({
+    this.addWidgetSource({
       sourceId: source.sourceId,
       type: widgetType,
       previewSourceId: '',
@@ -237,7 +237,7 @@ export class WidgetsService extends StatefulService<IWidgetSourcesState>
     if (!this.state.widgetSources[sourceId]) return;
     const widgetSource = this.getWidgetSource(sourceId);
     if (widgetSource.previewSourceId) widgetSource.destroyPreviewSource();
-    this.REMOVE_WIDGET_SOURCE(sourceId);
+    this.removeWidgetSource(sourceId);
   }
 
   /**
@@ -328,12 +328,12 @@ export class WidgetsService extends StatefulService<IWidgetSourcesState>
   }
 
   @mutation()
-  private ADD_WIDGET_SOURCE(widgetSource: IWidgetSource) {
+  private addWidgetSource(widgetSource: IWidgetSource) {
     Vue.set(this.state.widgetSources, widgetSource.sourceId, widgetSource);
   }
 
   @mutation()
-  private REMOVE_WIDGET_SOURCE(sourceId: string) {
+  private removeWidgetSource(sourceId: string) {
     Vue.delete(this.state.widgetSources, sourceId);
   }
 }

@@ -37,12 +37,12 @@ export abstract class SceneItemNode implements ISceneItemNode {
     if (this.isFolder() && this.getNestedNodesIds().indexOf(parentId) !== -1) {
       return;
     }
-    this.SET_PARENT(parentId);
+    this.doSetParent(parentId);
     this.placeAfter(parentId);
   }
 
   detachParent() {
-    if (this.parentId) this.SET_PARENT('');
+    if (this.parentId) this.doSetParent('');
   }
 
   getParent(): SceneItemFolder {
@@ -152,8 +152,8 @@ export abstract class SceneItemNode implements ISceneItemNode {
   protected abstract get state(): ISceneItemNode;
   protected abstract remove(): void;
 
-  @mutation()
-  protected SET_PARENT(parentId?: string) {
+  @mutation({ name: 'SET_PARENT' })
+  protected doSetParent(parentId?: string) {
     const nodeState = this.state;
     const sceneState = this.scenesService.state.scenes[nodeState.sceneId];
 

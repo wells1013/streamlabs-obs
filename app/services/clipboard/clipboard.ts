@@ -96,13 +96,13 @@ export class ClipboardService extends StatefulService<IClipboardState>
     this.sceneCollectionsService.collectionWillSwitch.subscribe(() => {
       this.beforeCollectionSwitchHandler();
     });
-    this.SET_SYSTEM_CLIPBOARD(this.fetchSystemClipboard());
+    this.setSystemClipboard(this.fetchSystemClipboard());
   }
 
   @shortcut('Ctrl+C')
   copy() {
-    this.SET_SCENE_ITEMS_IDS(this.selectionService.getIds());
-    this.SET_SCENE_ITEMS_SCENE(this.scenesService.activeScene.id);
+    this.setSceneItemIds(this.selectionService.getIds());
+    this.setSceneItemsScene(this.scenesService.activeScene.id);
   }
 
   @shortcut('Ctrl+V')
@@ -110,7 +110,7 @@ export class ClipboardService extends StatefulService<IClipboardState>
     const systemClipboard = this.fetchSystemClipboard();
     if (JSON.stringify(this.state.systemClipboard) !== JSON.stringify(systemClipboard)) {
       this.clear();
-      this.SET_SYSTEM_CLIPBOARD(systemClipboard);
+      this.setSystemClipboard(systemClipboard);
     }
 
     if (this.hasItems()) {
@@ -131,8 +131,8 @@ export class ClipboardService extends StatefulService<IClipboardState>
   copyFilters() {
     const source = this.selectionService.getLastSelected();
     if (!source) return;
-    this.SET_FILTERS_IDS([source.sourceId]);
-    this.SET_UNLOADED_CLIPBOARD_FILTERS([]);
+    this.setFiltersIds([source.sourceId]);
+    this.setUnloadedClipboardFilters([]);
   }
 
   pasteFilters() {
@@ -167,11 +167,11 @@ export class ClipboardService extends StatefulService<IClipboardState>
   }
 
   clear() {
-    this.SET_FILTERS_IDS([]);
-    this.SET_SCENE_ITEMS_IDS([]);
-    this.SET_SCENE_ITEMS_SCENE('');
-    this.SET_UNLOADED_CLIPBOARD_NODES({}, { current: [] });
-    this.SET_UNLOADED_CLIPBOARD_FILTERS([]);
+    this.setFiltersIds([]);
+    this.setSceneItemIds([]);
+    this.setSceneItemsScene('');
+    this.setUnloadedClipboardNodes({}, { current: [] });
+    this.setUnloadedClipboardFilters([]);
   }
 
   private fetchSystemClipboard(): ISystemClipboard {
@@ -233,9 +233,9 @@ export class ClipboardService extends StatefulService<IClipboardState>
 
     // now we can convert unloadedCollectionClipboard to regular clipboard
     // to avoid duplication of sources
-    this.SET_SCENE_ITEMS_IDS(insertedNodesIds);
-    this.SET_SCENE_ITEMS_SCENE(scene.id);
-    this.SET_UNLOADED_CLIPBOARD_NODES({}, { current: [] });
+    this.setSceneItemIds(insertedNodesIds);
+    this.setSceneItemsScene(scene.id);
+    this.setUnloadedClipboardNodes({}, { current: [] });
   }
 
   private pasteSceneNodes(
@@ -337,18 +337,18 @@ export class ClipboardService extends StatefulService<IClipboardState>
       scenesNodes.current = sceneInfo.sceneNodes;
       sourcesInfo = sceneInfo.sources;
 
-      this.SET_UNLOADED_CLIPBOARD_NODES(sourcesInfo, scenesNodes);
+      this.setUnloadedClipboardNodes(sourcesInfo, scenesNodes);
     }
 
     if (!this.hasFiltersInUnloadedClipboard() && this.hasFilters()) {
-      this.SET_UNLOADED_CLIPBOARD_FILTERS(
+      this.setUnloadedClipboardFilters(
         this.sourceFiltersService.getFilters(this.state.filterIds[0]),
       );
     }
 
-    this.SET_FILTERS_IDS([]);
-    this.SET_SCENE_ITEMS_IDS([]);
-    this.SET_SCENE_ITEMS_SCENE('');
+    this.setFiltersIds([]);
+    this.setSceneItemIds([]);
+    this.setSceneItemsScene('');
   }
 
   private getSceneInfo(
@@ -424,36 +424,33 @@ export class ClipboardService extends StatefulService<IClipboardState>
   }
 
   @mutation()
-  private SET_SYSTEM_CLIPBOARD(systemClipboard: ISystemClipboard) {
+  private setSystemClipboard(systemClipboard: ISystemClipboard) {
     this.state.systemClipboard = systemClipboard;
   }
 
   @mutation()
-  private SET_SCENE_ITEMS_IDS(ids: string[]) {
+  private setSceneItemIds(ids: string[]) {
     this.state.sceneNodesIds = ids;
   }
 
   @mutation()
-  private SET_FILTERS_IDS(filtersIds: string[]) {
+  private setFiltersIds(filtersIds: string[]) {
     this.state.filterIds = filtersIds;
   }
 
   @mutation()
-  private SET_SCENE_ITEMS_SCENE(sceneId: string) {
+  private setSceneItemsScene(sceneId: string) {
     this.state.itemsSceneId = sceneId;
   }
 
   @mutation()
-  private SET_UNLOADED_CLIPBOARD_NODES(
-    sources: Dictionary<ISourceInfo>,
-    scenesNodes: IScenesNodes,
-  ) {
+  private setUnloadedClipboardNodes(sources: Dictionary<ISourceInfo>, scenesNodes: IScenesNodes) {
     this.state.unloadedCollectionClipboard.sources = sources;
     this.state.unloadedCollectionClipboard.scenesNodes = scenesNodes;
   }
 
   @mutation()
-  private SET_UNLOADED_CLIPBOARD_FILTERS(filters: ISourceFilter[]) {
+  private setUnloadedClipboardFilters(filters: ISourceFilter[]) {
     this.state.unloadedCollectionClipboard.filters = filters;
   }
 }

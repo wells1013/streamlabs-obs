@@ -39,7 +39,7 @@ export class NotificationsService extends PersistentStatefulService<INotificatio
 
   init() {
     super.init();
-    this.CLEAR();
+    this.clear();
   }
 
   push(notifyInfo: INotificationOptions): INotification {
@@ -53,7 +53,7 @@ export class NotificationsService extends PersistentStatefulService<INotificatio
       showTime: false,
       ...notifyInfo,
     };
-    this.PUSH(notify);
+    this.doPush(notify);
     this.notificationPushed.next(notify);
     return notify;
   }
@@ -86,14 +86,14 @@ export class NotificationsService extends PersistentStatefulService<INotificatio
   markAsRead(id: number) {
     const notify = this.getNotification(id);
     if (!notify) return;
-    this.MARK_AS_READ(id);
+    this.doMarkAsRead(id);
     this.notificationRead.next([id]);
   }
 
   markAllAsRead() {
     const unreadNotifies = this.getUnread();
     if (!unreadNotifies.length) return;
-    this.MARK_ALL_AS_READ();
+    this.doMarkAllAsRead();
     this.notificationRead.next(unreadNotifies.map(notify => notify.id));
   }
 
@@ -125,7 +125,7 @@ export class NotificationsService extends PersistentStatefulService<INotificatio
   }
 
   setSettings(patch: Partial<INotificationsSettings>) {
-    this.SET_SETTINGS(patch);
+    this.doSetSettings(patch);
   }
 
   restoreDefaultSettings() {
@@ -143,28 +143,28 @@ export class NotificationsService extends PersistentStatefulService<INotificatio
     });
   }
 
-  @mutation()
-  private SET_SETTINGS(patch: Partial<INotificationsSettings>) {
+  @mutation({ name: 'doSetSettings' })
+  private doSetSettings(patch: Partial<INotificationsSettings>) {
     this.state.settings = { ...this.state.settings, ...patch };
   }
 
-  @mutation()
-  private PUSH(notify: INotification) {
+  @mutation({ name: 'PUSH' })
+  private doPush(notify: INotification) {
     this.state.notifications.unshift(notify);
   }
 
   @mutation()
-  private CLEAR() {
+  private clear() {
     this.state.notifications.length = 0;
   }
 
-  @mutation()
-  private MARK_ALL_AS_READ() {
+  @mutation({ name: 'MARK_ALL_AS_READ' })
+  private doMarkAllAsRead() {
     this.state.notifications.forEach(notify => (notify.unread = false));
   }
 
-  @mutation()
-  private MARK_AS_READ(id: number) {
+  @mutation({ name: 'MARK_AS_READ' })
+  private doMarkAsRead(id: number) {
     this.state.notifications.find(notify => notify.id === id).unread = false;
   }
 }

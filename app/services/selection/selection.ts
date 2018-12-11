@@ -174,11 +174,11 @@ export class SelectionService extends StatefulService<ISelectionState>
    * @override Selection.setState
    */
   private setState(state: Partial<ISelectionState>) {
-    this.SET_STATE(state);
+    this.doSetState(state);
   }
 
-  @mutation()
-  private SET_STATE(state: Partial<ISelectionState>) {
+  @mutation({ name: 'SET_STATE' })
+  private doSetState(state: Partial<ISelectionState>) {
     Object.assign(this.state, state);
   }
 }

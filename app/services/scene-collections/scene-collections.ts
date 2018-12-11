@@ -150,7 +150,7 @@ export class SceneCollectionsService extends Service implements ISceneCollection
     if (!this.collectionLoaded) return;
     if (!this.activeCollection) return;
     await this.saveCurrentApplicationStateAs(this.activeCollection.id);
-    this.stateService.SET_MODIFIED(this.activeCollection.id, new Date().toISOString());
+    this.stateService.setModified(this.activeCollection.id, new Date().toISOString());
   }
 
   /**
@@ -198,7 +198,7 @@ export class SceneCollectionsService extends Service implements ISceneCollection
 
     await this.insertCollection(id, name);
     await this.setActiveCollection(id);
-    if (options.needsRename) this.stateService.SET_NEEDS_RENAME(id);
+    if (options.needsRename) this.stateService.setNeedsRename(id);
 
     if (options.setupFunction && options.setupFunction()) {
       // Do nothing
@@ -239,7 +239,7 @@ export class SceneCollectionsService extends Service implements ISceneCollection
    * @param id if not present, will operate on the current collection
    */
   async rename(name: string, id?: string) {
-    this.stateService.RENAME_COLLECTION(
+    this.stateService.renameCollection(
       id || this.activeCollection.id,
       name,
       new Date().toISOString(),
@@ -283,7 +283,7 @@ export class SceneCollectionsService extends Service implements ISceneCollection
     const newId = uuid();
     await this.stateService.copyCollectionFile(id, newId);
     await this.insertCollection(newId, name);
-    this.stateService.SET_NEEDS_RENAME(newId);
+    this.stateService.setNeedsRename(newId);
     this.enableAutoSave();
   }
 
@@ -521,7 +521,7 @@ export class SceneCollectionsService extends Service implements ISceneCollection
       if (coll.scene_collection.data) {
         // A local hard delete without notifying the server
         // will force a fresh download from the server on next sync
-        this.stateService.HARD_DELETE_COLLECTION(id);
+        this.stateService.hardDeleteConnection(id);
         await this.safeSync();
 
         // Find the newly downloaded collection and load it
@@ -609,7 +609,7 @@ export class SceneCollectionsService extends Service implements ISceneCollection
    */
   private async insertCollection(id: string, name: string) {
     await this.saveCurrentApplicationStateAs(id);
-    this.stateService.ADD_COLLECTION(id, name, new Date().toISOString());
+    this.stateService.addCollection(id, name, new Date().toISOString());
     await this.safeSync();
     this.collectionAdded.next(this.collections.find(coll => coll.id === id));
   }
@@ -619,7 +619,7 @@ export class SceneCollectionsService extends Service implements ISceneCollection
    */
   private async removeCollection(id: string) {
     this.collectionRemoved.next(this.collections.find(coll => coll.id === id));
-    this.stateService.DELETE_COLLECTION(id);
+    this.stateService.deleteCollection(id);
     await this.safeSync();
 
     // Currently we don't remove files on disk in case we need to recover them
@@ -653,7 +653,7 @@ export class SceneCollectionsService extends Service implements ISceneCollection
           console.warn('Failed setting active collection');
         }
       }
-      this.stateService.SET_ACTIVE_COLLECTION(id);
+      this.stateService.setActiveCollection(id);
       this.collectionSwitched.next(collection);
     }
   }
@@ -695,7 +695,7 @@ export class SceneCollectionsService extends Service implements ISceneCollection
         if (inManifest.deleted) {
           const success = await this.performSyncStep('Delete on server', async () => {
             await this.serverApi.deleteSceneCollection(inManifest.serverId);
-            this.stateService.HARD_DELETE_COLLECTION(inManifest.id);
+            this.stateService.hardDeleteConnection(inManifest.id);
           });
 
           if (!success) failed = true;
@@ -726,7 +726,7 @@ export class SceneCollectionsService extends Service implements ISceneCollection
               response.scene_collection.data,
             );
 
-            this.stateService.RENAME_COLLECTION(
+            this.stateService.renameCollection(
               inManifest.id,
               onServer.name,
               onServer.last_updated_at,
@@ -751,8 +751,8 @@ export class SceneCollectionsService extends Service implements ISceneCollection
             this.stateService.writeDataToCollectionFile(id, response.scene_collection.data);
           }
 
-          this.stateService.ADD_COLLECTION(id, onServer.name, onServer.last_updated_at);
-          this.stateService.SET_SERVER_ID(id, onServer.id);
+          this.stateService.addCollection(id, onServer.name, onServer.last_updated_at);
+          this.stateService.setServerId(id, onServer.id);
         });
 
         if (!success) failed = true;
@@ -774,13 +774,13 @@ export class SceneCollectionsService extends Service implements ISceneCollection
               last_updated_at: inManifest.modified,
             });
 
-            this.stateService.SET_SERVER_ID(inManifest.id, response.id);
+            this.stateService.setServerId(inManifest.id, response.id);
           });
 
           if (!success) failed = true;
         } else {
           const success = this.performSyncStep('Delete from server', async () => {
-            this.stateService.HARD_DELETE_COLLECTION(inManifest.id);
+            this.stateService.hardDeleteConnection(inManifest.id);
           });
 
           if (!success) failed = true;
@@ -855,7 +855,7 @@ export class SceneCollectionsService extends Service implements ISceneCollection
           await this.stateService.ensureDirectory();
           const id: string = uuid();
           await this.stateService.writeDataToCollectionFile(id, oldData);
-          this.stateService.ADD_COLLECTION(
+          this.stateService.addCollection(
             id,
             file.replace(/\.[^/.]+$/, ''),
             new Date().toISOString(),

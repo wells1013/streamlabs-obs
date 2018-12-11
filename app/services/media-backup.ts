@@ -119,7 +119,7 @@ export class MediaBackupService extends StatefulService<IMediaBackupState> {
 
     if (!fs.existsSync(filePath)) return null;
 
-    this.INSERT_FILE(file);
+    this.insertFile(file);
 
     let data: { id: number };
 
@@ -130,7 +130,7 @@ export class MediaBackupService extends StatefulService<IMediaBackupState> {
 
       // We don't surface errors to the user currently
       if (this.validateSyncLock(localId, syncLock)) {
-        this.UPDATE_FILE(localId, { status: EMediaFileStatus.Synced });
+        this.updateFile(localId, { status: EMediaFileStatus.Synced });
       }
 
       return null;
@@ -140,7 +140,7 @@ export class MediaBackupService extends StatefulService<IMediaBackupState> {
       const serverId = data.id;
       file.serverId = serverId;
       file.status = EMediaFileStatus.Synced;
-      this.UPDATE_FILE(localId, file);
+      this.updateFile(localId, file);
       return file;
     }
 
@@ -170,7 +170,7 @@ export class MediaBackupService extends StatefulService<IMediaBackupState> {
       status: EMediaFileStatus.Checking,
     };
 
-    this.INSERT_FILE(file);
+    this.insertFile(file);
 
     let data: IMediaFileDataResponse;
 
@@ -181,7 +181,7 @@ export class MediaBackupService extends StatefulService<IMediaBackupState> {
 
       // At the moment, we don't surface sync errors to the user
       if (this.validateSyncLock(localId, syncLock)) {
-        this.UPDATE_FILE(localId, { status: EMediaFileStatus.Synced });
+        this.updateFile(localId, { status: EMediaFileStatus.Synced });
       }
       return null;
     }
@@ -204,7 +204,7 @@ export class MediaBackupService extends StatefulService<IMediaBackupState> {
           if (this.validateSyncLock(localId, syncLock)) {
             file.filePath = fileToCheck;
             file.status = EMediaFileStatus.Synced;
-            this.UPDATE_FILE(localId, file);
+            this.updateFile(localId, file);
             return file;
           }
         }
@@ -215,7 +215,7 @@ export class MediaBackupService extends StatefulService<IMediaBackupState> {
 
     // We need to download a new copy of this file from the server
     if (!this.validateSyncLock(localId, syncLock)) return null;
-    this.UPDATE_FILE(localId, { status: EMediaFileStatus.Downloading });
+    this.updateFile(localId, { status: EMediaFileStatus.Downloading });
     let downloadedPath: string;
 
     try {
@@ -227,7 +227,7 @@ export class MediaBackupService extends StatefulService<IMediaBackupState> {
 
       // At the moment, we don't surface sync errors to the user
       if (this.validateSyncLock(localId, syncLock)) {
-        this.UPDATE_FILE(localId, { status: EMediaFileStatus.Synced });
+        this.updateFile(localId, { status: EMediaFileStatus.Synced });
       }
       return null;
     }
@@ -235,7 +235,7 @@ export class MediaBackupService extends StatefulService<IMediaBackupState> {
     if (this.validateSyncLock(localId, syncLock)) {
       file.status = EMediaFileStatus.Synced;
       file.filePath = downloadedPath;
-      this.UPDATE_FILE(localId, file);
+      this.updateFile(localId, file);
 
       return file;
     }
@@ -359,7 +359,7 @@ export class MediaBackupService extends StatefulService<IMediaBackupState> {
   }
 
   @mutation()
-  INSERT_FILE(file: IMediaFile) {
+  insertFile(file: IMediaFile) {
     // First remove the existing one, if it is exists
     this.state.files = this.state.files.filter(storeFile => {
       return storeFile.id !== file.id;
@@ -369,7 +369,7 @@ export class MediaBackupService extends StatefulService<IMediaBackupState> {
   }
 
   @mutation()
-  UPDATE_FILE(id: string, patch: Partial<IMediaFile>) {
+  updateFile(id: string, patch: Partial<IMediaFile>) {
     this.state.files.forEach(file => {
       if (file.id === id) {
         Object.assign(file, patch);

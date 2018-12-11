@@ -41,28 +41,28 @@ export class UserService extends PersistentStatefulService<IUserServiceState> {
   @Inject() private incrementalRolloutService: IncrementalRolloutService;
   @Inject() private platformAppsService: PlatformAppsService;
 
-  @mutation()
-  LOGIN(auth: IPlatformAuth) {
+  @mutation({ name: 'LOGIN' })
+  doLogin(auth: IPlatformAuth) {
     Vue.set(this.state, 'auth', auth);
   }
 
-  @mutation()
-  LOGOUT() {
+  @mutation({ name: 'LOGOUT' })
+  doLogout() {
     Vue.delete(this.state, 'auth');
   }
 
   @mutation()
-  private SET_PLATFORM_TOKEN(token: string) {
+  private setPlatformToken(token: string) {
     this.state.auth.platform.token = token;
   }
 
   @mutation()
-  private SET_CHANNEL_ID(id: string) {
+  private setChannelId(id: string) {
     this.state.auth.platform.channelId = id;
   }
 
   @mutation()
-  private SET_USERNAME(name: string) {
+  private setUsername(name: string) {
     this.state.auth.platform.channelId = name;
   }
 
@@ -104,7 +104,7 @@ export class UserService extends PersistentStatefulService<IUserServiceState> {
         return res.text();
       })
       .then(valid => {
-        if (valid.match(/false/)) this.LOGOUT();
+        if (valid.match(/false/)) this.doLogout();
       });
   }
 
@@ -121,7 +121,7 @@ export class UserService extends PersistentStatefulService<IUserServiceState> {
       const userInfo = await service.fetchUserInfo();
 
       if (userInfo.username) {
-        this.SET_USERNAME(userInfo.username);
+        this.setUsername(userInfo.username);
       }
     } catch (e) {
       console.error('Error fetching user info', e);
@@ -247,7 +247,7 @@ export class UserService extends PersistentStatefulService<IUserServiceState> {
   }
 
   private async login(service: IPlatformService, auth: IPlatformAuth) {
-    this.LOGIN(auth);
+    this.doLogin(auth);
     this.setSentryContext();
     service.setupStreamSettings(auth);
     this.userLogin.next(auth);
@@ -263,7 +263,7 @@ export class UserService extends PersistentStatefulService<IUserServiceState> {
     await this.chatbotApiService.logOut();
     // Navigate away from disabled tabs on logout
     this.navigationService.navigate('Studio');
-    this.LOGOUT();
+    this.doLogout();
     this.userLogout.next();
     electron.remote.session.defaultSession.clearStorageData({ storages: ['cookies'] });
     this.platformAppsService.unloadApps();
@@ -342,11 +342,11 @@ export class UserService extends PersistentStatefulService<IUserServiceState> {
   }
 
   updatePlatformToken(token: string) {
-    this.SET_PLATFORM_TOKEN(token);
+    this.setPlatformToken(token);
   }
 
   updatePlatformChannelId(id: string) {
-    this.SET_CHANNEL_ID(id);
+    this.setChannelId(id);
   }
 
   /**

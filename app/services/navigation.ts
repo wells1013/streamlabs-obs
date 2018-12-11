@@ -28,12 +28,13 @@ export class NavigationService extends StatefulService<INavigationState> {
   navigated = new Subject<INavigationState>();
 
   navigate(page: TAppPage, params: Dictionary<string> = {}) {
-    this.NAVIGATE(page, params);
+    this.doNavigate(page, params);
     this.navigated.next(this.state);
   }
 
-  @mutation()
-  private NAVIGATE(page: TAppPage, params: Dictionary<string>) {
+  @mutation({ name: 'NAVIGATE' })
+  private doNavigate(page: TAppPage, params: Dictionary<string>) {
+    console.log('on mutation');
     this.state.currentPage = page;
     this.state.params = params;
   }

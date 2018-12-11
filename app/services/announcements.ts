@@ -31,7 +31,7 @@ export class AnnouncementsService extends StatefulService<IAnnouncementsInfo> {
 
   async updateBanner() {
     const newBanner = await this.fetchBanner();
-    this.SET_BANNER(newBanner);
+    this.setBanner(newBanner);
   }
 
   bannerExists() {
@@ -66,7 +66,7 @@ export class AnnouncementsService extends StatefulService<IAnnouncementsInfo> {
     const req = this.formRequest(endpoint, postData);
     try {
       await fetch(req);
-      this.CLEAR_BANNER();
+      this.clearBanner();
     } catch (e) {}
   }
 
@@ -78,12 +78,12 @@ export class AnnouncementsService extends StatefulService<IAnnouncementsInfo> {
   }
 
   @mutation()
-  SET_BANNER(banner: IAnnouncementsInfo) {
+  private setBanner(banner: IAnnouncementsInfo) {
     this.state = banner;
   }
 
   @mutation()
-  CLEAR_BANNER() {
+  private clearBanner() {
     this.state = AnnouncementsService.initialState;
   }
 }

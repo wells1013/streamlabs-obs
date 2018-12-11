@@ -126,7 +126,7 @@ export class Scene implements ISceneApi {
   setName(newName: string) {
     const sceneSource = this.sourcesService.getSource(this.id);
     sceneSource.setName(newName);
-    this.SET_NAME(newName);
+    this.doSetName(newName);
   }
 
   createAndAddSource(
@@ -151,7 +151,7 @@ export class Scene implements ISceneApi {
     let obsSceneItem: obs.ISceneItem;
     obsSceneItem = this.getObsScene().add(source.getObsInput());
 
-    this.ADD_SOURCE_TO_SCENE(sceneItemId, source.sourceId, obsSceneItem.id);
+    this.addSourceToScene(sceneItemId, source.sourceId, obsSceneItem.id);
     const sceneItem = this.getItem(sceneItemId);
 
     sceneItem.loadAttributes();
@@ -186,7 +186,7 @@ export class Scene implements ISceneApi {
   createFolder(name: string, options: ISceneNodeAddOptions = {}) {
     const id = options.id || uuid();
 
-    this.ADD_FOLDER_TO_SCENE({
+    this.addFolderToScene({
       id,
       name,
       sceneNodeType: 'folder',
@@ -203,7 +203,7 @@ export class Scene implements ISceneApi {
     if (!sceneFolder) return;
     sceneFolder.getSelection().remove();
     sceneFolder.detachParent();
-    this.REMOVE_NODE_FROM_SCENE(folderId);
+    this.removeNodeFromScene(folderId);
   }
 
   remove(force?: boolean): IScene {
@@ -216,7 +216,7 @@ export class Scene implements ISceneApi {
     const sceneItemModel = sceneItem.getModel();
     sceneItem.detachParent();
     sceneItem.getObsSceneItem().remove();
-    this.REMOVE_NODE_FROM_SCENE(sceneItemId);
+    this.removeNodeFromScene(sceneItemId);
     this.scenesService.itemRemoved.next(sceneItemModel);
   }
 
@@ -288,7 +288,7 @@ export class Scene implements ISceneApi {
     sceneNodesIds.splice(firstNodeIndex, nodesToMoveIds.length);
     sceneNodesIds.splice(newNodeIndex, 0, ...nodesToMoveIds);
 
-    this.SET_NODES_ORDER(sceneNodesIds);
+    this.setNodesOrder(sceneNodesIds);
 
     // recalculate children order in dest and source folder
 
@@ -360,7 +360,7 @@ export class Scene implements ISceneApi {
         this.createFolder(folderModel.name, { id: folderModel.id });
       } else {
         const itemModel = nodeModel as ISceneItemInfo;
-        this.ADD_SOURCE_TO_SCENE(itemModel.id, itemModel.sourceId, obsSceneItems[itemIndex].id);
+        this.addSourceToScene(itemModel.id, itemModel.sourceId, obsSceneItems[itemIndex].id);
         this.getItem(itemModel.id).loadItemAttributes(itemModel);
         itemIndex++;
       }
@@ -459,13 +459,13 @@ export class Scene implements ISceneApi {
     return this._resourceId;
   }
 
-  @mutation()
-  private SET_NAME(newName: string) {
+  @mutation({ name: 'SET_NAME' })
+  private doSetName(newName: string) {
     this.sceneState.name = newName;
   }
 
   @mutation()
-  private ADD_SOURCE_TO_SCENE(sceneItemId: string, sourceId: string, obsSceneItemId: number) {
+  private addSourceToScene(sceneItemId: string, sourceId: string, obsSceneItemId: number) {
     this.sceneState.nodes.unshift({
       // This is information that belongs to a scene/source pair
 
@@ -502,12 +502,12 @@ export class Scene implements ISceneApi {
   }
 
   @mutation()
-  private ADD_FOLDER_TO_SCENE(folderModel: ISceneItemFolder) {
+  private addFolderToScene(folderModel: ISceneItemFolder) {
     this.sceneState.nodes.unshift(folderModel);
   }
 
   @mutation()
-  private REMOVE_NODE_FROM_SCENE(nodeId: string) {
+  private removeNodeFromScene(nodeId: string) {
     if (this.selectionService.isSelected(nodeId)) {
       this.selectionService.deselect(nodeId);
     }
@@ -518,7 +518,7 @@ export class Scene implements ISceneApi {
   }
 
   @mutation()
-  private SET_NODES_ORDER(order: string[]) {
+  private setNodesOrder(order: string[]) {
     // TODO: This is O(n^2)
     this.sceneState.nodes = order.map(id => {
       return this.sceneState.nodes.find(item => {

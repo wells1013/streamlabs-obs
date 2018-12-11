@@ -29,7 +29,7 @@ export class MixerService extends StatefulService<IMixerServiceState> implements
   };
 
   @mutation()
-  private ADD_GAME_MAPPING(game: string, id: integer) {
+  private addGameMapping(game: string, id: integer) {
     this.state.typeIdMap[game] = id;
   }
 
@@ -180,7 +180,7 @@ export class MixerService extends StatefulService<IMixerServiceState> implements
       .then(response => response.json())
       .then(response => {
         response.forEach((game: any) => {
-          this.ADD_GAME_MAPPING(game.name, game.id);
+          this.addGameMapping(game.name, game.id);
         });
         return response;
       });

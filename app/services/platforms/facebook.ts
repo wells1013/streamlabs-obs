@@ -46,22 +46,22 @@ export class FacebookService extends StatefulService<IFacebookServiceState>
   };
 
   @mutation()
-  private SET_ACTIVE_PAGE(page: IFacebookPage) {
+  private setActivePage(page: IFacebookPage) {
     this.state.activePage = page;
   }
 
   @mutation()
-  private SET_LIVE_VIDEO_ID(id: number) {
+  private setLiveVideoId(id: number) {
     this.state.liveVideoId = id;
   }
 
   @mutation()
-  private SET_STREAM_URL(url: string) {
+  private setStreamUrl(url: string) {
     this.state.streamUrl = url;
   }
 
   @mutation()
-  private SET_STREAM_PROPERTIES(title: string, description: string, game: string) {
+  private setStreamProperties(title: string, description: string, game: string) {
     this.state.streamProperties = { title, description, game };
   }
 
@@ -119,7 +119,7 @@ export class FacebookService extends StatefulService<IFacebookServiceState>
         }
         const activePage =
           json.data.filter((page: IFacebookPage) => pageId === page.id)[0] || json.data[0];
-        this.SET_ACTIVE_PAGE(activePage);
+        this.setActivePage(activePage);
       });
   }
 
@@ -165,7 +165,7 @@ export class FacebookService extends StatefulService<IFacebookServiceState>
       .then(response => response.json())
       .then(json => {
         const streamKey = json.stream_url.substr(json.stream_url.lastIndexOf('/') + 1);
-        this.SET_LIVE_VIDEO_ID(json.id);
+        this.setLiveVideoId(json.id);
         this.setSettingsWithKey(streamKey);
       });
   }
@@ -187,8 +187,8 @@ export class FacebookService extends StatefulService<IFacebookServiceState>
         const info =
           json.data.find((vid: any) => vid.status === 'SCHEDULED_UNPUBLISHED') || json.data[0];
         if (info.status === 'SCHEDULED_UNPUBLISHED') {
-          this.SET_LIVE_VIDEO_ID(info.id);
-          this.SET_STREAM_URL(info.stream_url);
+          this.setLiveVideoId(info.id);
+          this.setStreamUrl(info.stream_url);
         }
         return info;
       });
@@ -208,7 +208,7 @@ export class FacebookService extends StatefulService<IFacebookServiceState>
       if (this.state.streamUrl) {
         const streamKey = this.state.streamUrl.substr(this.state.streamUrl.lastIndexOf('/') + 1);
         this.setSettingsWithKey(streamKey);
-        this.SET_STREAM_URL(null);
+        this.setStreamUrl(null);
         resolve();
       } else {
         return this.state.activePage ? this.createLiveVideo().then(() => resolve()) : resolve();
@@ -217,7 +217,7 @@ export class FacebookService extends StatefulService<IFacebookServiceState>
   }
 
   putChannelInfo({ title, description, game }: IChannelInfo): Promise<boolean> {
-    this.SET_STREAM_PROPERTIES(title, description, game);
+    this.setStreamProperties(title, description, game);
     if (this.state.liveVideoId && game) {
       const headers = this.getHeaders(this.state.activePage.access_token);
       const data = { title, description, game_specs: { name: game } };

@@ -60,14 +60,14 @@ export abstract class WidgetSettingsService<TWidgetData extends IWidgetData>
     const rawData = cloneDeep(this.state.rawData);
     rawData.settings = event.message;
     const data = this.handleDataAfterFetch(rawData);
-    this.SET_WIDGET_DATA(data, rawData);
+    this.setWidgetData(data, rawData);
     this.dataUpdated.next(this.state.data);
   }
 
   private onWidgetThemeChange() {
     // changing the widget theme updates the widget setting on the backend
     // clear the current cached settings to require upload fresh data
-    this.RESET_WIDGET_DATA();
+    this.resetWidgetData();
   }
 
   async fetchData(): Promise<TWidgetData> {
@@ -82,7 +82,7 @@ export abstract class WidgetSettingsService<TWidgetData extends IWidgetData>
   protected async loadData() {
     // load widget settings data into state
     const isFirstLoading = !this.state.data;
-    if (isFirstLoading) this.SET_LOADING_STATE('pending');
+    if (isFirstLoading) this.setLoadingState('pending');
     const apiSettings = this.getApiSettings();
     let rawData: any;
     try {
@@ -91,12 +91,12 @@ export abstract class WidgetSettingsService<TWidgetData extends IWidgetData>
         method: 'GET',
       });
     } catch (e) {
-      if (isFirstLoading) this.SET_LOADING_STATE('fail');
+      if (isFirstLoading) this.setLoadingState('fail');
       throw e;
     }
-    this.SET_LOADING_STATE('success');
+    this.setLoadingState('success');
     const data: TWidgetData = this.handleDataAfterFetch(rawData);
-    this.SET_WIDGET_DATA(data, rawData);
+    this.setWidgetData(data, rawData);
     this.dataUpdated.next(this.state.data);
   }
 
@@ -174,18 +174,18 @@ export abstract class WidgetSettingsService<TWidgetData extends IWidgetData>
   }
 
   @mutation()
-  protected SET_LOADING_STATE(loadingState: TWIdgetLoadingState) {
+  protected setLoadingState(loadingState: TWIdgetLoadingState) {
     this.state.loadingState = loadingState;
   }
 
   @mutation()
-  protected SET_WIDGET_DATA(data: TWidgetData, rawData: any) {
+  protected setWidgetData(data: TWidgetData, rawData: any) {
     this.state.data = data;
     this.state.rawData = rawData;
   }
 
   @mutation()
-  protected RESET_WIDGET_DATA() {
+  protected resetWidgetData() {
     this.state.loadingState = 'none';
     this.state.data = null;
     this.state.rawData = null;

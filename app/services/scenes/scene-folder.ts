@@ -138,7 +138,7 @@ export class SceneItemFolder extends SceneItemNode implements ISceneItemFolderAp
   }
 
   setName(name: string) {
-    this.UPDATE({ name, id: this.id });
+    this.update({ name, id: this.id });
   }
 
   remove() {
@@ -164,7 +164,7 @@ export class SceneItemFolder extends SceneItemNode implements ISceneItemFolderAp
       if (sceneNode.parentId === this.id) foundChildren.push(sceneNode);
     }
 
-    this.SET_CHILDREN_ORDER(foundChildren.map(child => child.id));
+    this.setChildrenOrder(foundChildren.map(child => child.id));
   }
 
   protected get state() {
@@ -172,12 +172,12 @@ export class SceneItemFolder extends SceneItemNode implements ISceneItemFolderAp
   }
 
   @mutation()
-  private UPDATE(patch: TPatch<ISceneItemFolder>) {
+  private update(patch: TPatch<ISceneItemFolder>) {
     merge(this.sceneFolderState, patch);
   }
 
   @mutation()
-  private SET_CHILDREN_ORDER(childrenIds: string[]) {
+  private setChildrenOrder(childrenIds: string[]) {
     this.sceneFolderState.childrenIds = childrenIds;
   }
 }

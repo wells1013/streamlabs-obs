@@ -59,7 +59,7 @@ export class WidgetSource implements IWidgetSource {
       { isTemporary: true },
     );
 
-    this.SET_PREVIEW_SOURCE_ID(previewSource.sourceId);
+    this.setPreviewSourceId(previewSource.sourceId);
 
     this.widgetsService.syncPreviewSource(this.sourceId, this.previewSourceId);
     return previewSource;
@@ -72,11 +72,11 @@ export class WidgetSource implements IWidgetSource {
   destroyPreviewSource() {
     this.widgetsService.stopSyncPreviewSource(this.previewSourceId);
     this.sourcesService.getSource(this.previewSourceId).remove();
-    this.SET_PREVIEW_SOURCE_ID('');
+    this.setPreviewSourceId('');
   }
 
   @mutation()
-  private SET_PREVIEW_SOURCE_ID(previewSourceId: string) {
+  private setPreviewSourceId(previewSourceId: string) {
     Object.assign(this.widgetSourceState, { previewSourceId });
   }
 }

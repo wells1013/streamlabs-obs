@@ -113,7 +113,7 @@ export class Source implements ISourceApi {
       settings,
     );
     this.sourcesService.propertiesManagers[this.sourceId].type = type;
-    this.SET_PROPERTIES_MANAGER_TYPE(type);
+    this.setPropertiesManagerType(type);
     this.sourcesService.sourceUpdated.next(this.getModel());
   }
 
@@ -145,7 +145,7 @@ export class Source implements ISourceApi {
   }
 
   setName(newName: string) {
-    this.SET_NAME(newName);
+    this.doSetName(newName);
     this.sourcesService.sourceUpdated.next(this.sourceState);
   }
 
@@ -179,13 +179,13 @@ export class Source implements ISourceApi {
     }
   }
 
-  @mutation()
-  private SET_NAME(newName: string) {
+  @mutation({ name: 'SET_NAME' })
+  private doSetName(newName: string) {
     this.sourceState.name = newName;
   }
 
   @mutation()
-  private SET_PROPERTIES_MANAGER_TYPE(type: TPropertiesManager) {
+  private setPropertiesManagerType(type: TPropertiesManager) {
     this.sourceState.propertiesManagerType = type;
   }
 }

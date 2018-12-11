@@ -78,7 +78,7 @@ export class BrandDeviceService extends StatefulService<IBrandDeviceState> {
       msSystemInformation.forEach(record => {
         const [key, value] = record.split(':').map(item => item.trim());
         if (!key) return;
-        if (this.state[key] !== void 0) this.SET_SYSTEM_PARAM(key as keyof IMsSystemInfo, value);
+        if (this.state[key] !== void 0) this.setSystemParam(key as keyof IMsSystemInfo, value);
       });
     } catch (e) {
       // unfortunately, for some users we can't run Powershell
@@ -92,7 +92,7 @@ export class BrandDeviceService extends StatefulService<IBrandDeviceState> {
     // this.SET_SYSTEM_PARAM('SystemSKU', '909-0020-010');
     // this.SET_SYSTEM_PARAM('SystemVersion', '1');
 
-    this.SET_DEVICE_URLS(await this.fetchDeviceUrls());
+    this.setDeviceUrls(await this.fetchDeviceUrls());
     return true;
   }
 
@@ -176,12 +176,12 @@ export class BrandDeviceService extends StatefulService<IBrandDeviceState> {
   }
 
   @mutation()
-  private SET_SYSTEM_PARAM(key: keyof IBrandDeviceState, value: string) {
+  private setSystemParam(key: keyof IBrandDeviceState, value: string) {
     this.state[key] = value;
   }
 
   @mutation()
-  private SET_DEVICE_URLS(urls: IBrandDeviceUrls) {
+  private setDeviceUrls(urls: IBrandDeviceUrls) {
     this.state.urls = urls;
   }
 }

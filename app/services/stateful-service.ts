@@ -1,10 +1,16 @@
 import Vue from 'vue';
 import { Store, Module } from 'vuex';
 import { Service } from './service';
+import { memoize, snakeCase } from 'lodash';
 
 export * from './service';
 
-export function mutation(options = { vuexSyncIgnore: false }) {
+interface MutationOptions {
+  name?: string;
+  vuexSyncIgnore?: boolean;
+}
+
+export function mutation(options: MutationOptions = { vuexSyncIgnore: false }) {
   return function(target: any, methodName: string, descriptor: PropertyDescriptor) {
     return registerMutation(target, methodName, descriptor, options);
   };
@@ -14,10 +20,12 @@ function registerMutation(
   target: any,
   methodName: string,
   descriptor: PropertyDescriptor,
-  options = { vuexSyncIgnore: false },
+  options: MutationOptions = { vuexSyncIgnore: false },
 ) {
   const serviceName = target.constructor.name;
-  const mutationName = `${serviceName}.${methodName}`;
+  const mutationName = options.name
+    ? `${serviceName}.${options.name}`
+    : `${serviceName}.${getMutationName(methodName)}`;
 
   target.originalMethods = target.originalMethods || {};
   target.originalMethods[methodName] = target[methodName];
@@ -47,7 +55,7 @@ function registerMutation(
       store.commit(mutationName, {
         args,
         constructorArgs,
-        __vuexSyncIgnore: options.vuexSyncIgnore,
+        __vuexSyncIgnore: options.vuexSyncIgnore || false,
       });
     },
   });
@@ -165,3 +173,7 @@ export function InheritMutations(): ClassDecorator {
     inheritMutations(target);
   };
 }
+
+const getMutationName: (methodName: string) => string = memoize(methodName =>
+  snakeCase(methodName).toUpperCase(),
+);

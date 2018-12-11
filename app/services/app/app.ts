@@ -81,7 +81,7 @@ export class AppService extends StatefulService<IAppState> {
 
   @track('app_start')
   async load() {
-    this.START_LOADING();
+    this.startLoading();
     crashHandler.registerProcess(this.pid, false);
 
     await this.obsUserPluginsService.initialize();
@@ -132,13 +132,13 @@ export class AppService extends StatefulService<IAppState> {
 
     this.crashReporterService.endStartup();
 
-    this.FINISH_LOADING();
+    this.finishLoading();
     this.protocolLinksService.start(this.state.argv);
   }
 
   @track('app_close')
   private shutdownHandler() {
-    this.START_LOADING();
+    this.startLoading();
     obs.NodeObs.StopCrashHandler();
 
     this.crashReporterService.beginShutdown();
@@ -168,7 +168,7 @@ export class AppService extends StatefulService<IAppState> {
    */
   async runInLoadingMode(fn: () => Promise<any> | void) {
     if (!this.state.loading) {
-      this.START_LOADING();
+      this.startLoading();
       this.windowsService.closeChildWindow();
       this.windowsService.closeAllOneOffs();
       this.sceneCollectionsService.disableAutoSave();
@@ -204,23 +204,23 @@ export class AppService extends StatefulService<IAppState> {
 
     this.tcpServerService.startRequestsHandling();
     this.sceneCollectionsService.enableAutoSave();
-    this.FINISH_LOADING();
+    this.finishLoading();
     if (error) throw error;
     return returningValue;
   }
 
   @mutation()
-  private START_LOADING() {
+  private startLoading() {
     this.state.loading = true;
   }
 
   @mutation()
-  private FINISH_LOADING() {
+  private finishLoading() {
     this.state.loading = false;
   }
 
   @mutation()
-  private SET_ARGV(argv: string[]) {
+  private setArgv(argv: string[]) {
     this.state.argv = argv;
   }
 }

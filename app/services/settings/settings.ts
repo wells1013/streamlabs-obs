@@ -85,7 +85,7 @@ export class SettingsService extends StatefulService<ISettingsState>
     this.getCategories().forEach(categoryName => {
       settingsFormData[categoryName] = this.getSettingsFormData(categoryName);
     });
-    this.SET_SETTINGS(SettingsService.convertFormDataToState(settingsFormData));
+    this.doSetSettings(SettingsService.convertFormDataToState(settingsFormData));
   }
 
   showSettings(categoryName?: string) {
@@ -359,8 +359,8 @@ export class SettingsService extends StatefulService<ISettingsState>
     });
   }
 
-  @mutation()
-  SET_SETTINGS(settingsData: ISettingsState) {
+  @mutation({ name: 'SET_SETTINGS' })
+  doSetSettings(settingsData: ISettingsState) {
     this.state = Object.assign({}, this.state, settingsData);
   }
 }

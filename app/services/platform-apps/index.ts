@@ -160,16 +160,16 @@ export class PlatformAppsService extends StatefulService<IPlatformAppServiceStat
     this.userService.userLogin.subscribe(async () => {
       this.unloadApps();
       this.installProductionApps();
-      this.SET_APP_STORE_VISIBILITY(await this.fetchAppStoreVisibility());
-      this.SET_DEV_MODE(await this.getIsDevMode());
+      this.setAppStoreVisibility(await this.fetchAppStoreVisibility());
+      this.setDevMode(await this.getIsDevMode());
     });
 
     if (!this.userService.isLoggedIn()) return;
 
-    this.SET_DEV_MODE(await this.getIsDevMode());
+    this.setDevMode(await this.getIsDevMode());
 
     this.installProductionApps();
-    this.SET_APP_STORE_VISIBILITY(await this.fetchAppStoreVisibility());
+    this.setAppStoreVisibility(await this.fetchAppStoreVisibility());
 
     if (this.state.devMode && localStorage.getItem(this.unpackedLocalStorageKey)) {
       const data = JSON.parse(localStorage.getItem(this.unpackedLocalStorageKey));
@@ -280,7 +280,7 @@ export class PlatformAppsService extends StatefulService<IPlatformAppServiceStat
     if (this.state.loadedApps.find(loadedApp => loadedApp.id === id && !loadedApp.unpacked)) {
       // has prod app with same id
       // disable prod app
-      this.SET_PROD_APP_ENABLED(id, false);
+      this.setProdAppEnabled(id, false);
     }
 
     this.addApp({
@@ -314,7 +314,7 @@ export class PlatformAppsService extends StatefulService<IPlatformAppServiceStat
       return;
     }
 
-    this.ADD_APP(app);
+    this.doAddApp(app);
     if (app.unpacked && app.appPath) {
       // store app in local storage
       localStorage.setItem(
@@ -420,7 +420,7 @@ export class PlatformAppsService extends StatefulService<IPlatformAppServiceStat
   }
 
   unloadApp(app: ILoadedApp) {
-    this.REMOVE_APP(app.id);
+    this.removeApp(app.id);
     if (app.unpacked) {
       localStorage.removeItem(this.unpackedLocalStorageKey);
       if (this.devServer) {
@@ -454,7 +454,7 @@ export class PlatformAppsService extends StatefulService<IPlatformAppServiceStat
       return e.message;
     }
 
-    this.UPDATE_APP_MANIFEST(appId, manifest);
+    this.updateAppManifest(appId, manifest);
     this.appReload.next(appId);
   }
 
@@ -735,11 +735,11 @@ export class PlatformAppsService extends StatefulService<IPlatformAppServiceStat
       windowId,
     );
 
-    this.POP_OUT_SLOT(appId, pageSlot);
+    this.popOutSlot(appId, pageSlot);
 
     const sub = this.windowsService.windowDestroyed.subscribe(winId => {
       if (winId === windowId) {
-        this.POP_IN_SLOT(appId, pageSlot);
+        this.popInSlot(appId, pageSlot);
         sub.unsubscribe();
       }
     });
@@ -762,7 +762,7 @@ export class PlatformAppsService extends StatefulService<IPlatformAppServiceStat
         JSON.stringify(this.getDisabledAppsFromStorage().concat([app.id])),
       );
     }
-    this.SET_PROD_APP_ENABLED(appId, enabling);
+    this.setProdAppEnabled(appId, enabling);
   }
 
   /* These functions exist primary to work around our n window
@@ -793,13 +793,13 @@ export class PlatformAppsService extends StatefulService<IPlatformAppServiceStat
    * Replace for now
    * @param app the app
    */
-  @mutation()
-  private ADD_APP(app: ILoadedApp) {
+  @mutation({ name: 'ADD_APP' })
+  private doAddApp(app: ILoadedApp) {
     this.state.loadedApps.push(app);
   }
 
   @mutation()
-  private REMOVE_APP(appId: string) {
+  private removeApp(appId: string) {
     // edge case for when there are 2 apps with same id
     // when one is unpacked and one is prod
     // generally we want to do actions with enabled one first
@@ -811,7 +811,7 @@ export class PlatformAppsService extends StatefulService<IPlatformAppServiceStat
   }
 
   @mutation()
-  private UPDATE_APP_MANIFEST(appId: string, manifest: IAppManifest) {
+  private updateAppManifest(appId: string, manifest: IAppManifest) {
     this.state.loadedApps.forEach(app => {
       if (app.id === appId) {
         app.manifest = manifest;
@@ -820,12 +820,12 @@ export class PlatformAppsService extends StatefulService<IPlatformAppServiceStat
   }
 
   @mutation()
-  private SET_DEV_MODE(devMode: boolean) {
+  private setDevMode(devMode: boolean) {
     this.state.devMode = devMode;
   }
 
   @mutation()
-  private POP_OUT_SLOT(appId: string, slot: EAppPageSlot) {
+  private popOutSlot(appId: string, slot: EAppPageSlot) {
     this.state.loadedApps.forEach(app => {
       if (app.id === appId) {
         app.poppedOutSlots.push(slot);
@@ -834,7 +834,7 @@ export class PlatformAppsService extends StatefulService<IPlatformAppServiceStat
   }
 
   @mutation()
-  private POP_IN_SLOT(appId: string, slot: EAppPageSlot) {
+  private popInSlot(appId: string, slot: EAppPageSlot) {
     this.state.loadedApps.forEach(app => {
       if (app.id === appId) {
         app.poppedOutSlots = app.poppedOutSlots.filter(s => s !== slot);
@@ -843,12 +843,12 @@ export class PlatformAppsService extends StatefulService<IPlatformAppServiceStat
   }
 
   @mutation()
-  private SET_APP_STORE_VISIBILITY(visibility: boolean) {
+  private setAppStoreVisibility(visibility: boolean) {
     this.state.storeVisible = visibility;
   }
 
   @mutation()
-  private SET_PROD_APP_ENABLED(appId: string, enabled: boolean) {
+  private setProdAppEnabled(appId: string, enabled: boolean) {
     this.state.loadedApps.forEach(app => {
       if (app.id === appId && !app.unpacked) {
         app.enabled = enabled;

@@ -39,7 +39,7 @@ export class ScenesService extends StatefulService<IScenesState> implements ISce
   @Inject() private transitionsService: TransitionsService;
 
   @mutation()
-  private ADD_SCENE(id: string, name: string) {
+  private addScene(id: string, name: string) {
     Vue.set<IScene>(this.state.scenes, id, {
       id,
       name,
@@ -50,27 +50,27 @@ export class ScenesService extends StatefulService<IScenesState> implements ISce
     this.state.activeSceneId = this.state.activeSceneId;
   }
 
-  @mutation()
-  private REMOVE_SCENE(id: string) {
+  @mutation({ name: 'REMOVE_SCENE' })
+  private doRemoveScene(id: string) {
     Vue.delete(this.state.scenes, id);
 
     this.state.displayOrder = without(this.state.displayOrder, id);
   }
 
-  @mutation()
-  private MAKE_SCENE_ACTIVE(id: string) {
+  @mutation({ name: 'MAKE_SCENE_ACTIVE' })
+  private doMakeSceneActive(id: string) {
     this.state.activeSceneId = id;
   }
 
-  @mutation()
-  private SET_SCENE_ORDER(order: string[]) {
+  @mutation({ name: 'SET_SCENE_ORDER' })
+  private doSetSceneOrder(order: string[]) {
     this.state.displayOrder = order;
   }
 
   createScene(name: string, options: ISceneCreateOptions = {}) {
     // Get an id to identify the scene on the frontend
     const id = options.sceneId || `scene_${uuid()}`;
-    this.ADD_SCENE(id, name);
+    this.addScene(id, name);
     const obsScene = obs.SceneFactory.create(id);
     this.sourcesService.addSource(obsScene.source, name, { sourceId: id });
 
@@ -110,7 +110,7 @@ export class ScenesService extends StatefulService<IScenesState> implements ISce
       sceneItem.getScene().removeItem(sceneItem.sceneItemId);
     });
 
-    this.REMOVE_SCENE(id);
+    this.doRemoveScene(id);
 
     if (this.state.activeSceneId === id) {
       const sceneIds = Object.keys(this.state.scenes);
@@ -145,13 +145,13 @@ export class ScenesService extends StatefulService<IScenesState> implements ISce
 
     this.transitionsService.transition(activeScene && activeScene.id, scene.id);
 
-    this.MAKE_SCENE_ACTIVE(id);
+    this.doMakeSceneActive(id);
     this.sceneSwitched.next(scene.getModel());
     return true;
   }
 
   setSceneOrder(order: string[]) {
-    this.SET_SCENE_ORDER(order);
+    this.doSetSceneOrder(order);
   }
 
   // Utility functions / getters

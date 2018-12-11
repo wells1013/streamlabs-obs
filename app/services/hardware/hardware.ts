@@ -26,7 +26,7 @@ export class HardwareService extends StatefulService<IHardwareServiceState> {
   };
 
   init() {
-    this.SET_DEVICES(this.fetchDevices());
+    this.setDevices(this.fetchDevices());
   }
 
   getDevices() {
@@ -101,7 +101,7 @@ export class HardwareService extends StatefulService<IHardwareServiceState> {
   }
 
   @mutation()
-  private SET_DEVICES(devices: IHardwareServiceState) {
+  private setDevices(devices: IHardwareServiceState) {
     this.state.devices = devices.devices;
     this.state.dshowDevices = devices.dshowDevices;
   }

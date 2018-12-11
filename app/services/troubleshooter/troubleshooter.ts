@@ -106,7 +106,7 @@ export class TroubleshooterService extends PersistentStatefulService<ITroublesho
   }
 
   setSettings(settingsPatch: Partial<ITroubleshooterSettings>) {
-    this.SET_SETTINGS(settingsPatch);
+    this.doSetSettings(settingsPatch);
   }
 
   restoreDefaultSettings() {
@@ -125,8 +125,8 @@ export class TroubleshooterService extends PersistentStatefulService<ITroublesho
     });
   }
 
-  @mutation()
-  private SET_SETTINGS(settingsPatch: Partial<ITroubleshooterSettings>) {
+  @mutation({ name: 'SET_SETTINGS' })
+  private doSetSettings(settingsPatch: Partial<ITroubleshooterSettings>) {
     this.state.settings = { ...this.state.settings, ...settingsPatch };
   }
 }

@@ -20,7 +20,7 @@ export class DismissablesService extends PersistentStatefulService<IDismissables
   }
 
   dismiss(key: EDismissable) {
-    this.DISMISS(key);
+    this.doDismiss(key);
   }
 
   dismissAll() {
@@ -28,7 +28,7 @@ export class DismissablesService extends PersistentStatefulService<IDismissables
   }
 
   @mutation()
-  DISMISS(key: EDismissable) {
+  private doDismiss(key: EDismissable) {
     Vue.set(this.state, key, true);
   }
 }

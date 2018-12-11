@@ -86,12 +86,12 @@ export class SourcesService extends StatefulService<ISourcesState> implements IS
   }
 
   @mutation()
-  private RESET_SOURCES() {
+  private resetSources() {
     this.state.sources = {};
   }
 
-  @mutation()
-  private ADD_SOURCE(addOptions: {
+  @mutation({ name: 'ADD_SOURCE' })
+  private doAddSource(addOptions: {
     id: string;
     name: string;
     type: TSourceType;
@@ -129,8 +129,8 @@ export class SourcesService extends StatefulService<ISourcesState> implements IS
     }
   }
 
-  @mutation()
-  private REMOVE_SOURCE(id: string) {
+  @mutation({ name: 'REMOVE_SOURCE' })
+  private doRemoveSource(id: string) {
     if (this.state.sources[id]) {
       Vue.delete(this.state.sources, id);
     } else {
@@ -139,7 +139,7 @@ export class SourcesService extends StatefulService<ISourcesState> implements IS
   }
 
   @mutation()
-  private UPDATE_SOURCE(sourcePatch: TPatch<ISource>) {
+  private updateSource(sourcePatch: TPatch<ISource>) {
     if (this.state.sources[sourcePatch.id]) {
       Object.assign(this.state.sources[sourcePatch.id], sourcePatch);
     } else {
@@ -169,7 +169,7 @@ export class SourcesService extends StatefulService<ISourcesState> implements IS
     const id = obsInput.name;
     const type: TSourceType = obsInput.id as TSourceType;
     const managerType = options.propertiesManager || 'default';
-    this.ADD_SOURCE({
+    this.doAddSource({
       id,
       name,
       type,
@@ -179,7 +179,7 @@ export class SourcesService extends StatefulService<ISourcesState> implements IS
     });
     const source = this.getSource(id);
     const muted = obsInput.muted;
-    this.UPDATE_SOURCE({ id, muted });
+    this.updateSource({ id, muted });
     this.updateSourceFlags(source.sourceState, obsInput.outputFlags, true);
 
     const managerKlass = PROPERTIES_MANAGER_TYPES[managerType];
@@ -207,7 +207,7 @@ export class SourcesService extends StatefulService<ISourcesState> implements IS
       obs.Global.setOutputSource(source.channel, null);
     }
 
-    this.REMOVE_SOURCE(id);
+    this.doRemoveSource(id);
     this.propertiesManagers[id].manager.destroy();
     delete this.propertiesManagers[id];
     this.sourceRemoved.next(source.sourceState);
@@ -373,7 +373,7 @@ export class SourcesService extends StatefulService<ISourcesState> implements IS
           width: sourcesSize[index].width,
           height: sourcesSize[index].height,
         };
-        this.UPDATE_SOURCE(size);
+        this.updateSource(size);
       }
       this.updateSourceFlags(source, sourcesSize[index].outputFlags);
     });
@@ -397,7 +397,7 @@ export class SourcesService extends StatefulService<ISourcesState> implements IS
 
         if (source.width !== update.width || source.height !== update.height) {
           const size = { id: source.sourceId, width: update.width, height: update.height };
-          this.UPDATE_SOURCE(size);
+          this.updateSource(size);
         }
         this.updateSourceFlags(source, update.outputFlags);
       });
@@ -411,7 +411,7 @@ export class SourcesService extends StatefulService<ISourcesState> implements IS
     const doNotDuplicate = !!(DoNotDuplicateFlag & flags);
 
     if (source.audio !== audio || source.video !== video) {
-      this.UPDATE_SOURCE({ audio, video, async, doNotDuplicate, id: source.sourceId });
+      this.updateSource({ audio, video, async, doNotDuplicate, id: source.sourceId });
 
       if (!doNotEmit) this.sourceUpdated.next(source);
     }
@@ -420,12 +420,12 @@ export class SourcesService extends StatefulService<ISourcesState> implements IS
   setMuted(id: string, muted: boolean) {
     const source = this.getSource(id);
     source.getObsInput().muted = muted;
-    this.UPDATE_SOURCE({ id, muted });
+    this.updateSource({ id, muted });
     this.sourceUpdated.next(source.sourceState);
   }
 
   reset() {
-    this.RESET_SOURCES();
+    this.resetSources();
   }
 
   // Utility functions / getters

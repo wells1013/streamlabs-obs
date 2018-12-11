@@ -124,7 +124,7 @@ export class TcpServerService extends PersistentStatefulService<ITcpServersSetti
     const needToGenerateToken =
       settings.websockets && settings.websockets.allowRemote && !this.state.token;
     if (needToGenerateToken) this.generateToken();
-    this.SET_SETTINGS(settings);
+    this.doSetSettings(settings);
   }
 
   getSettings(): ITcpServersSettings {
@@ -485,8 +485,8 @@ export class TcpServerService extends PersistentStatefulService<ITcpServersSetti
     console.log(...messages);
   }
 
-  @mutation()
-  private SET_SETTINGS(patch: Partial<ITcpServersSettings>) {
+  @mutation({ name: 'SET_SETTINGS' })
+  private doSetSettings(patch: Partial<ITcpServersSettings>) {
     this.state = { ...this.state, ...patch };
   }
 }

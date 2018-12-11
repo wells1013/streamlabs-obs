@@ -133,7 +133,7 @@ export class I18nService extends PersistentStatefulService<II18nState> implement
     // setup locale in libobs
     obs.Global.locale = locale;
 
-    this.SET_LOCALE(locale);
+    this.doSetLocale(locale);
 
     this.isLoaded = true;
   }
@@ -147,7 +147,7 @@ export class I18nService extends PersistentStatefulService<II18nState> implement
   }
 
   setLocale(locale: string) {
-    this.SET_LOCALE(locale);
+    this.doSetLocale(locale);
     electron.remote.app.relaunch();
     electron.remote.app.quit();
   }
@@ -196,8 +196,8 @@ export class I18nService extends PersistentStatefulService<II18nState> implement
     return dictionary;
   }
 
-  @mutation()
-  private SET_LOCALE(locale: string) {
+  @mutation({ name: 'SET_LOCALE' })
+  private doSetLocale(locale: string) {
     this.state.locale = locale;
   }
 }

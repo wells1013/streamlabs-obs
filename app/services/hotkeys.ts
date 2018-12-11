@@ -239,7 +239,7 @@ export class HotkeysService extends StatefulService<IHotkeysServiceState> {
   }
 
   addHotkey(hotkeyModel: IHotkey) {
-    this.ADD_HOTKEY(hotkeyModel);
+    this.doAddHotkey(hotkeyModel);
   }
 
   private invalidate() {
@@ -375,9 +375,9 @@ export class HotkeysService extends StatefulService<IHotkeysServiceState> {
   }
 
   private setHotkeys(hotkeys: IHotkey[]) {
-    this.CLEAR_HOTKEYS();
+    this.clearHotkeys();
     hotkeys.forEach(hotkey => {
-      if (hotkey.bindings.length) this.ADD_HOTKEY(hotkey);
+      if (hotkey.bindings.length) this.doAddHotkey(hotkey);
     });
     this.invalidate();
   }
@@ -426,17 +426,17 @@ export class HotkeysService extends StatefulService<IHotkeysServiceState> {
   }
 
   @mutation()
-  private ADD_HOTKEY(hotkeyObj: IHotkey) {
+  private doAddHotkey(hotkeyObj: IHotkey) {
     this.state.hotkeys.push(hotkeyObj);
   }
 
   @mutation()
-  private SET_BINDINGS(hotkeyInd: number, bindings: IBinding[]) {
+  private setBindings(hotkeyInd: number, bindings: IBinding[]) {
     this.state.hotkeys[hotkeyInd].bindings = bindings;
   }
 
   @mutation()
-  private CLEAR_HOTKEYS() {
+  private clearHotkeys() {
     this.state.hotkeys = [];
   }
 }

@@ -197,7 +197,7 @@ export class WindowsService extends StatefulService<IWindowsState> {
     const window = this.windows[windowId];
     const bounds = window.getBounds();
     const currentDisplay = electron.screen.getDisplayMatching(bounds);
-    this.UPDATE_SCALE_FACTOR(windowId, currentDisplay.scaleFactor);
+    this.doUpdateScaleFactor(windowId, currentDisplay.scaleFactor);
   }
 
   showWindow(options: Partial<IWindowOptions>) {
@@ -255,7 +255,7 @@ export class WindowsService extends StatefulService<IWindowsState> {
       return windowId;
     }
 
-    this.CREATE_ONE_OFF_WINDOW(windowId, options);
+    this.doCreateOneOffWindow(windowId, options);
 
     const newWindow = (this.windows[windowId] = new BrowserWindow({
       frame: false,
@@ -268,7 +268,7 @@ export class WindowsService extends StatefulService<IWindowsState> {
     newWindow.on('closed', () => {
       this.windowDestroyed.next(windowId);
       delete this.windows[windowId];
-      this.DELETE_ONE_OFF_WINDOW(windowId);
+      this.deleteOneOffWindow(windowId);
     });
 
     this.updateScaleFactor(windowId);
@@ -285,7 +285,7 @@ export class WindowsService extends StatefulService<IWindowsState> {
   }
 
   setOneOffFullscreen(windowId: string, fullscreen: boolean) {
-    this.UPDATE_ONE_OFF_WINDOW(windowId, { isFullScreen: fullscreen });
+    this.updateOneOffWindow(windowId, { isFullScreen: fullscreen });
   }
 
   /**
@@ -339,32 +339,32 @@ export class WindowsService extends StatefulService<IWindowsState> {
       delete newOptions.prevWindowOptions.prevWindowOptions;
     }
 
-    this.SET_CHILD_WINDOW_OPTIONS(newOptions);
+    this.setChildWindowOptions(newOptions);
     this.windowUpdated.next({ windowId: 'child', options: newOptions });
   }
 
   updateMainWindowOptions(options: Partial<IWindowOptions>) {
-    this.UPDATE_MAIN_WINDOW_OPTIONS(options);
+    this.doUpdateMainWindowOptions(options);
   }
 
   @mutation()
-  private SET_CHILD_WINDOW_OPTIONS(options: IWindowOptions) {
+  private setChildWindowOptions(options: IWindowOptions) {
     options.queryParams = options.queryParams || {};
     this.state.child = options;
   }
 
-  @mutation()
-  private UPDATE_MAIN_WINDOW_OPTIONS(options: Partial<IWindowOptions>) {
+  @mutation({ name: 'UPDATE_MAIN_WINDOW_OPTIONS' })
+  private doUpdateMainWindowOptions(options: Partial<IWindowOptions>) {
     this.state.main = { ...this.state.main, ...options };
   }
 
-  @mutation()
-  private UPDATE_SCALE_FACTOR(windowId: string, scaleFactor: number) {
+  @mutation({ name: 'UPDATE_SCALE_FACTOR' })
+  private doUpdateScaleFactor(windowId: string, scaleFactor: number) {
     this.state[windowId].scaleFactor = scaleFactor;
   }
 
-  @mutation()
-  private CREATE_ONE_OFF_WINDOW(windowId: string, options: Partial<IWindowOptions>) {
+  @mutation({ name: 'CREATE_ONE_OFF_WINDOW' })
+  private doCreateOneOffWindow(windowId: string, options: Partial<IWindowOptions>) {
     const opts = {
       componentName: 'Blank',
       scaleFactor: 1,
@@ -375,13 +375,13 @@ export class WindowsService extends StatefulService<IWindowsState> {
   }
 
   @mutation()
-  private UPDATE_ONE_OFF_WINDOW(windowId: string, options: Partial<IWindowOptions>) {
+  private updateOneOffWindow(windowId: string, options: Partial<IWindowOptions>) {
     const oldOpts = this.state[windowId];
     Vue.set(this.state, windowId, { ...oldOpts, ...options });
   }
 
   @mutation()
-  private DELETE_ONE_OFF_WINDOW(windowId: string) {
+  private deleteOneOffWindow(windowId: string) {
     Vue.delete(this.state, windowId);
   }
 }

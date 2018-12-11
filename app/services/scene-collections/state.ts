@@ -54,7 +54,7 @@ export class SceneCollectionsStateService extends StatefulService<ISceneCollecti
         const parsed = JSON.parse(data);
         const recovered = await this.checkAndRecoverManifest(parsed);
 
-        if (recovered) this.LOAD_STATE(recovered);
+        if (recovered) this.loadState(recovered);
       }
     } catch (e) {
       console.warn('Error loading manifest file from disk');
@@ -179,12 +179,12 @@ export class SceneCollectionsStateService extends StatefulService<ISceneCollecti
   }
 
   @mutation()
-  SET_ACTIVE_COLLECTION(id: string) {
+  private setActiveCollection(id: string) {
     this.state.activeId = id;
   }
 
   @mutation()
-  ADD_COLLECTION(id: string, name: string, modified: string) {
+  private addCollection(id: string, name: string, modified: string) {
     this.state.collections.unshift({
       id,
       name,
@@ -195,22 +195,22 @@ export class SceneCollectionsStateService extends StatefulService<ISceneCollecti
   }
 
   @mutation()
-  SET_NEEDS_RENAME(id: string) {
+  private setNeedsRename(id: string) {
     this.state.collections.find(coll => coll.id === id).needsRename = true;
   }
 
   @mutation()
-  SET_MODIFIED(id: string, modified: string) {
+  private setModified(id: string, modified: string) {
     this.state.collections.find(coll => coll.id === id).modified = modified;
   }
 
   @mutation()
-  SET_SERVER_ID(id: string, serverId: number) {
+  private setServerId(id: string, serverId: number) {
     this.state.collections.find(coll => coll.id === id).serverId = serverId;
   }
 
   @mutation()
-  RENAME_COLLECTION(id: string, name: string, modified: string) {
+  private renameCollection(id: string, name: string, modified: string) {
     const coll = this.state.collections.find(coll => coll.id === id);
     coll.name = name;
     coll.modified = modified;
@@ -218,17 +218,17 @@ export class SceneCollectionsStateService extends StatefulService<ISceneCollecti
   }
 
   @mutation()
-  DELETE_COLLECTION(id: string) {
+  private deleteCollection(id: string) {
     this.state.collections.find(coll => coll.id === id).deleted = true;
   }
 
   @mutation()
-  HARD_DELETE_COLLECTION(id: string) {
+  private hardDeleteConnection(id: string) {
     this.state.collections = this.state.collections.filter(coll => coll.id !== id);
   }
 
   @mutation()
-  LOAD_STATE(state: ISceneCollectionsManifest) {
+  private loadState(state: ISceneCollectionsManifest) {
     Object.keys(state).forEach(key => {
       Vue.set(this.state, key, state[key]);
     });

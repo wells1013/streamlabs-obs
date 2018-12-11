@@ -281,7 +281,7 @@ export class StreamingService extends StatefulService<IStreamingServiceState>
       const time = new Date().toISOString();
 
       if (info.signal === EOBSOutputSignal.Start) {
-        this.SET_STREAMING_STATUS(EStreamingState.Live, time);
+        this.setStreamingStatus(EStreamingState.Live, time);
         this.streamingStatusChange.next(EStreamingState.Live);
 
         let streamEncoderInfo: Dictionary<string> = {};
@@ -301,21 +301,21 @@ export class StreamingService extends StatefulService<IStreamingServiceState>
           game,
         });
       } else if (info.signal === EOBSOutputSignal.Starting) {
-        this.SET_STREAMING_STATUS(EStreamingState.Starting, time);
+        this.setStreamingStatus(EStreamingState.Starting, time);
         this.streamingStatusChange.next(EStreamingState.Starting);
       } else if (info.signal === EOBSOutputSignal.Stop) {
-        this.SET_STREAMING_STATUS(EStreamingState.Offline, time);
+        this.setStreamingStatus(EStreamingState.Offline, time);
         this.streamingStatusChange.next(EStreamingState.Offline);
         this.usageStatisticsService.recordEvent('stream_end');
       } else if (info.signal === EOBSOutputSignal.Stopping) {
-        this.SET_STREAMING_STATUS(EStreamingState.Ending, time);
+        this.setStreamingStatus(EStreamingState.Ending, time);
         this.streamingStatusChange.next(EStreamingState.Ending);
       } else if (info.signal === EOBSOutputSignal.Reconnect) {
-        this.SET_STREAMING_STATUS(EStreamingState.Reconnecting);
+        this.setStreamingStatus(EStreamingState.Reconnecting);
         this.streamingStatusChange.next(EStreamingState.Reconnecting);
         this.sendReconnectingNotification();
       } else if (info.signal === EOBSOutputSignal.ReconnectSuccess) {
-        this.SET_STREAMING_STATUS(EStreamingState.Live);
+        this.setStreamingStatus(EStreamingState.Live);
         this.streamingStatusChange.next(EStreamingState.Live);
         this.clearReconnectingNotification();
       }
@@ -323,16 +323,16 @@ export class StreamingService extends StatefulService<IStreamingServiceState>
       const time = new Date().toISOString();
 
       if (info.signal === EOBSOutputSignal.Start) {
-        this.SET_RECORDING_STATUS(ERecordingState.Recording, time);
+        this.setRecordingStatus(ERecordingState.Recording, time);
         this.recordingStatusChange.next(ERecordingState.Recording);
       } else if (info.signal === EOBSOutputSignal.Starting) {
-        this.SET_RECORDING_STATUS(ERecordingState.Starting, time);
+        this.setRecordingStatus(ERecordingState.Starting, time);
         this.recordingStatusChange.next(ERecordingState.Starting);
       } else if (info.signal === EOBSOutputSignal.Stop) {
-        this.SET_RECORDING_STATUS(ERecordingState.Offline, time);
+        this.setRecordingStatus(ERecordingState.Offline, time);
         this.recordingStatusChange.next(ERecordingState.Offline);
       } else if (info.signal === EOBSOutputSignal.Stopping) {
-        this.SET_RECORDING_STATUS(ERecordingState.Stopping, time);
+        this.setRecordingStatus(ERecordingState.Stopping, time);
         this.recordingStatusChange.next(ERecordingState.Stopping);
       }
     }
@@ -373,13 +373,13 @@ export class StreamingService extends StatefulService<IStreamingServiceState>
   }
 
   @mutation()
-  private SET_STREAMING_STATUS(status: EStreamingState, time?: string) {
+  private setStreamingStatus(status: EStreamingState, time?: string) {
     this.state.streamingStatus = status;
     if (time) this.state.streamingStatusTime = time;
   }
 
   @mutation()
-  private SET_RECORDING_STATUS(status: ERecordingState, time: string) {
+  private setRecordingStatus(status: ERecordingState, time: string) {
     this.state.recordingStatus = status;
     this.state.recordingStatusTime = time;
   }

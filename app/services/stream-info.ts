@@ -53,7 +53,7 @@ export class StreamInfoService extends StatefulService<IStreamInfoServiceState> 
         const platform = getPlatformService(this.userService.platform.type);
 
         platform.fetchViewerCount().then(viewers => {
-          this.SET_VIEWER_COUNT(viewers);
+          this.setViewerCount(viewers);
           this.streamInfoChanged.next({
             viewerCount: this.state.viewerCount,
             channelInfo: this.state.channelInfo,
@@ -66,23 +66,23 @@ export class StreamInfoService extends StatefulService<IStreamInfoServiceState> 
   refreshStreamInfo(): Promise<void> {
     if (!this.userService.isLoggedIn()) return Promise.reject(null);
 
-    this.SET_ERROR(false);
-    this.SET_FETCHING(true);
+    this.setError(false);
+    this.setFetching(true);
 
     const platform = getPlatformService(this.userService.platform.type);
     return platform
       .fetchChannelInfo()
       .then(info => {
-        this.SET_CHANNEL_INFO(info);
+        this.setChannelInfo(info);
         this.streamInfoChanged.next({
           viewerCount: this.state.viewerCount,
           channelInfo: this.state.channelInfo,
         });
-        this.SET_FETCHING(false);
+        this.setFetching(false);
       })
       .catch(() => {
-        this.SET_FETCHING(false);
-        this.SET_ERROR(true);
+        this.setFetching(false);
+        this.setError(true);
       });
   }
 
@@ -125,22 +125,22 @@ export class StreamInfoService extends StatefulService<IStreamInfoServiceState> 
   }
 
   @mutation()
-  SET_FETCHING(fetching: boolean) {
+  setFetching(fetching: boolean) {
     this.state.fetching = fetching;
   }
 
   @mutation()
-  SET_ERROR(error: boolean) {
+  setError(error: boolean) {
     this.state.error = error;
   }
 
   @mutation()
-  SET_CHANNEL_INFO(info: IChannelInfo) {
+  setChannelInfo(info: IChannelInfo) {
     this.state.channelInfo = info;
   }
 
   @mutation()
-  SET_VIEWER_COUNT(viewers: number) {
+  setViewerCount(viewers: number) {
     this.state.viewerCount = viewers;
   }
 }

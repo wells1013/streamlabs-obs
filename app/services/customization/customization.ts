@@ -57,7 +57,7 @@ export class CustomizationService extends PersistentStatefulService<ICustomizati
   setSettings(settingsPatch: Partial<ICustomizationSettings>) {
     // tslint:disable-next-line:no-parameter-reassignment TODO
     settingsPatch = Utils.getChangedParams(this.state, settingsPatch);
-    this.SET_SETTINGS(settingsPatch);
+    this.doSetSettings(settingsPatch);
     this.settingsChanged.next(settingsPatch);
   }
 
@@ -184,8 +184,8 @@ export class CustomizationService extends PersistentStatefulService<ICustomizati
     this.setSettings(CustomizationService.defaultState);
   }
 
-  @mutation()
-  private SET_SETTINGS(settingsPatch: Partial<ICustomizationSettings>) {
+  @mutation({ name: 'doSetSettings' })
+  private doSetSettings(settingsPatch: Partial<ICustomizationSettings>) {
     Object.assign(this.state, settingsPatch);
   }
 }
