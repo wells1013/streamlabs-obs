@@ -123,11 +123,10 @@ async function checkChance(info, version) {
 
     console.log(`You rolled ${roll}`);
 
-    if (roll <= chance) {
-        return true;
-    }
+    return roll <= chance;
+}
 
-    return false;
+    
 }
 
 /* Note that latest-updater.exe never changes

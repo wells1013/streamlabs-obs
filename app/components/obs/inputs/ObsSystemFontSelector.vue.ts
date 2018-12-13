@@ -162,11 +162,7 @@ export default class ObsSystemFontSelector extends ObsInput<IObsInput<IObsFont>>
 
   get selectedFont() {
     return _.find(this.selectedFamily.fonts, font => {
-      if (this.value.value.flags !== this.getFlagsFromFont(font)) {
-        return false;
-      }
-
-      return true;
+      return this.value.value.flags === this.getFlagsFromFont(font);
     });
   }
 

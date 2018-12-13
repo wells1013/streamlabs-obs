@@ -396,11 +396,7 @@ export default class StudioEditor extends Vue {
       return false;
     }
 
-    if (mouse.y > box.y + box.height) {
-      return false;
-    }
-
-    return true;
+    return mouse.y <= box.y + box.height;
   }
 
   // Determines if the given mouse event is over the
