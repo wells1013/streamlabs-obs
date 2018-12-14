@@ -287,7 +287,7 @@ async function entry(info) {
 
     if (statusWindow) {
         updaterArgs.push('-p');
-        updaterArgs.push(statusWindow.webContents.getOSProcessId());
+        updaterArgs.push(statusWindow.webContents.getOSProcessId().toString());
     }
 
     console.log(updaterArgs);
