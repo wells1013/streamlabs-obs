@@ -340,6 +340,7 @@ export class ServicesManager extends Service {
     } catch (e) {
       handleErrors(e);
     } finally {
+      // TODO: `return` inside `finally` is confusing
       return response;
     }
   }
