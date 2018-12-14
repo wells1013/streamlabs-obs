@@ -29,6 +29,7 @@ import { PlatformAppsService } from 'services/platform-apps';
 import { AnnouncementsService } from 'services/announcements';
 import { ObsUserPluginsService } from 'services/obs-user-plugins';
 import { IncrementalRolloutService } from 'services/incremental-rollout';
+import electronLog from 'electron-log';
 
 const crashHandler = window['require']('crash-handler');
 
@@ -83,29 +84,37 @@ export class AppService extends StatefulService<IAppState> {
   @track('app_start')
   async load() {
     this.START_LOADING();
+    electronLog.info('Main renderer register process');
     crashHandler.registerProcess(this.pid, false);
 
+    electronLog.info('Initialize obs user plugins service');
     await this.obsUserPluginsService.initialize();
 
     // Initialize OBS
+    electronLog.info('Initialize OBS API');
     obs.NodeObs.OBS_API_initAPI('en-US', electron.remote.process.env.SLOBS_IPC_USERDATA);
 
     // We want to start this as early as possible so that any
     // exceptions raised while loading the configuration are
     // associated with the user in sentry.
+    electronLog.info('Initialize user service');
     await this.userService.initialize();
 
     // Second, we want to start the crash reporter service.  We do this
     // after the user service because we want crashes to be associated
     // with a particular user if possible.
+    electronLog.info('Start crash-reporter');
     this.crashReporterService.beginStartup();
 
     // Initialize any apps before loading the scene collection.  This allows
     // the apps to already be in place when their sources are created.
+    electronLog.info('Initialize platform app service');
     await this.platformAppsService.initialize();
 
+    electronLog.info('Initialize scene collection service');
     await this.sceneCollectionsService.initialize()
 
+    electronLog.info('Start onboarding if required');
     const onboarded = this.onboardingService.startOnboardingIfRequired();
 
     electron.ipcRenderer.on('shutdown', () => {
@@ -113,24 +122,36 @@ export class AppService extends StatefulService<IAppState> {
       this.shutdownHandler();
     });
 
+    electronLog.info('Start facemask service');
     this.facemasksService;
 
+    electronLog.info('Start incremental rollout service');
     this.incrementalRolloutService;
+    electronLog.info('Start shotcut service');
     this.shortcutsService;
+    electronLog.info('Start streamlabel service');
     this.streamlabelsService;
 
     // Pre-fetch stream info
+    electronLog.info('Start stream info service');
     this.streamInfoService;
 
+    electronLog.info('Start performance monitor service');
     this.performanceMonitorService.start();
 
+    electronLog.info('Listen ipc server service');
     this.ipcServerService.listen();
+    electronLog.info('Listen tcp server service');
     this.tcpServerService.listen();
 
+    electronLog.info('Show patch notes if required');
     this.patchNotesService.showPatchNotesIfRequired(onboarded);
+    electronLog.info('Update banner');
     this.announcementsService.updateBanner();
+    electronLog.info('Start outage notification service');
     this.outageNotificationsService;
 
+    electronLog.info('End startup crash-reporter service');
     this.crashReporterService.endStartup();
 
     this.FINISH_LOADING();

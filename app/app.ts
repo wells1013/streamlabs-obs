@@ -31,8 +31,10 @@ window['obs'] = window['require']('obs-studio-node');
 
 { // Set up things for IPC
   // Connect to the IPC Server
+  electronLog.info('Renderer window connect');
   window['obs'].IPC.connect(remote.process.env.SLOBS_IPC_PATH);
   document.addEventListener('close', (e) => {
+    electronLog.info('Renderer window disconnect');
     window['obs'].IPC.disconnect();
   });
 }
@@ -41,6 +43,7 @@ window['obs'] = window['require']('obs-studio-node');
 let sentryDsn = 'https://8f444a81edd446b69ce75421d5e91d4d@sentry.io/252950';
 
 if (isProduction) {
+  electronLog.info('Start crash-handler');
   // This is the production DSN
   sentryDsn = 'https://6971fa187bb64f58ab29ac514aa0eb3d@sentry.io/251674';
 

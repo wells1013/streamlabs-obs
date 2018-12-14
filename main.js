@@ -85,9 +85,12 @@ function openDevTools() {
 }
 
 function startApp() {
+  electronLog.info('Starting up the app');
   const isDevMode = (process.env.NODE_ENV !== 'production') && (process.env.NODE_ENV !== 'test');
 
+  electronLog.info('Strart crash-handler');
   crashHandler.startCrashHandler(app.getAppPath());
+  electronLog.info('Register process');
   crashHandler.registerProcess(pid, false);
 
   { // Initialize obs-studio-server
@@ -95,7 +98,9 @@ function startApp() {
     process.env.SLOBS_IPC_PATH = "slobs-".concat(uuid());
     process.env.SLOBS_IPC_USERDATA = app.getPath('userData');
     // Host a new IPC Server and connect to it.
+    electronLog.info('Host server');
     obs.IPC.host(process.env.SLOBS_IPC_PATH);
+    electronLog.info('Set working directory');
     obs.NodeObs.SetWorkingDirectory(path.join(
       app.getAppPath().replace('app.asar', 'app.asar.unpacked'),
       'node_modules',
@@ -103,6 +108,7 @@ function startApp() {
     );
   }
 
+  electronLog.info('Start crash-reporter');
   const bt = require('backtrace-node');
 
   function handleFinishedReport() {
@@ -148,6 +154,7 @@ function startApp() {
     });
   }
 
+  electronLog.info('Set main window size and pos');
   const mainWindowState = windowStateKeeper({
     defaultWidth: 1600,
     defaultHeight: 1000
@@ -203,6 +210,7 @@ function startApp() {
     mainWindow.close();
   });
 
+  electronLog.info('Start key listener');
   // Initialize the keylistener
   require('node-libuiohook').startHook();
 
@@ -212,6 +220,7 @@ function startApp() {
     app.quit();
   });
 
+  electronLog.info('Start child window');
   // Pre-initialize the child window
   childWindow = new BrowserWindow({
     show: false,
