@@ -126,9 +126,6 @@ async function checkChance(info, version) {
     return roll <= chance;
 }
 
-    
-}
-
 /* Note that latest-updater.exe never changes
  * in name regardless of what version of the
  * application we're using. The base url should
