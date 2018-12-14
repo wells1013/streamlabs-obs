@@ -70,7 +70,7 @@ async function getPreviousRoll(cacheFile, version) {
                 return;
             }
 
-            let roll = parseInt(data);
+            let roll = parseInt(data.toString(), 10);
 
             if (!roll) {
                 roll = 0;
