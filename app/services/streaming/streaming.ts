@@ -88,6 +88,7 @@ export class StreamingService extends StatefulService<IStreamingServiceState>
   /**
    * @deprecated Use toggleStreaming instead
    */
+  // TODO: no usages anymore, can we remove, including on interface?
   startStreaming() {
     this.toggleStreaming();
   }
@@ -95,6 +96,7 @@ export class StreamingService extends StatefulService<IStreamingServiceState>
   /**
    * @deprecated Use toggleStreaming instead
    */
+  // TODO: no usages anymore, can we remove, including on interface?
   stopStreaming() {
     this.toggleStreaming();
   }
