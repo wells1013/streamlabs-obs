@@ -183,7 +183,7 @@ async function getVersion(info) {
 
     let response = await prequest(reqInfo);
 
-    if (response.statusCode != 200) {
+    if (response.statusCode !== 200) {
         console.log(
             `Failed to fetch version information ` +
             `- ${response.statusCode}`
