@@ -38,6 +38,9 @@ export class Source implements ISourceApi {
   @Inject()
   scenesService: ScenesService;
 
+  @Inject()
+  sourcesService: SourcesService;
+
   getObsInput(): obs.IInput {
     return obs.InputFactory.fromName(this.sourceId);
   }
@@ -190,10 +193,12 @@ export class Source implements ISourceApi {
     if (button === 0) {
       obsFlags = obs.EInteractionFlags.MouseLeft;
       obsButton = obs.EMouseButtonType.Left;
-    } else if (button === 1) {
+    }
+    else if (button === 1) {
       obsFlags = obs.EInteractionFlags.MouseMiddle;
       obsButton = obs.EMouseButtonType.Middle;
-    } else if (button === 2) {
+    }
+    else if (button === 2) {
       obsFlags = obs.EInteractionFlags.MouseRight;
       obsButton = obs.EMouseButtonType.Right;
     }
@@ -203,6 +208,7 @@ export class Source implements ISourceApi {
       x: Math.floor(pos.x),
       y: Math.floor(pos.y)
     }, obsButton, mouseUp, 1);
+  }
   /**
    * works only for browser_source
    */
@@ -235,9 +241,6 @@ export class Source implements ISourceApi {
       nativeVkey: 0
     }, keyup);
   }
-
-  @Inject()
-  protected sourcesService: SourcesService;
 
   constructor(sourceId: string) {
     // Using a proxy will ensure that this object

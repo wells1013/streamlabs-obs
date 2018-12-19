@@ -7,14 +7,12 @@ import { WindowsService } from 'services/windows';
 import { ISourcesServiceApi } from 'services/sources';
 import Util from 'services/utils';
 import { $t } from 'services/i18n';
-import windowMixin from '../mixins/window';
 
 @Component({
   components: {
     ModalLayout,
     Display
-  },
-  mixins: [windowMixin]
+  }
 })
 export default class BrowserSourceInteraction extends Vue {
   @Inject() windowsService: WindowsService;
