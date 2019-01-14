@@ -380,28 +380,28 @@ export class SourcesService extends StatefulService<ISourcesState> implements IS
   }
 
   requestSourceSizes() {
-    const activeScene = this.scenesService.activeScene;
-    if (activeScene) {
-      const activeItems = activeScene.getItems();
-      const sourcesNames: string[] = [];
+    // const activeScene = this.scenesService.activeScene;
+    // if (activeScene) {
+    //   const activeItems = activeScene.getItems();
+    //   const sourcesNames: string[] = [];
 
-      activeItems.forEach(activeItem => {
-        sourcesNames.push(activeItem.sourceId);
-      });
+    //   activeItems.forEach(activeItem => {
+    //     sourcesNames.push(activeItem.sourceId);
+    //   });
 
-      const sizes: obs.ISourceSize[] = obs.getSourcesSize(sourcesNames);
-      sizes.forEach(update => {
-        const source = this.getSource(update.name);
+    //   const sizes: obs.ISourceSize[] = obs.getSourcesSize(sourcesNames);
+    //   sizes.forEach(update => {
+    //     const source = this.getSource(update.name);
 
-        if (!source) return;
+    //     if (!source) return;
 
-        if (source.width !== update.width || source.height !== update.height) {
-          const size = { id: source.sourceId, width: update.width, height: update.height };
-          this.UPDATE_SOURCE(size);
-        }
-        this.updateSourceFlags(source, update.outputFlags);
-      });
-    }
+    //     if (source.width !== update.width || source.height !== update.height) {
+    //       const size = { id: source.sourceId, width: update.width, height: update.height };
+    //       this.UPDATE_SOURCE(size);
+    //     }
+    //     this.updateSourceFlags(source, update.outputFlags);
+    //   });
+    // }
   }
 
   private updateSourceFlags(source: ISource, flags: number, doNotEmit?: boolean) {

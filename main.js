@@ -327,33 +327,33 @@ if (shouldQuit) {
 }
 
 app.on('ready', () => {
-    if (
-      !process.argv.includes('--skip-update') &&
-      ((process.env.NODE_ENV === 'production') || process.env.SLOBS_FORCE_AUTO_UPDATE)) {
-    const updateInfo = {
-      baseUrl: 'https://slobs-cdn.streamlabs.com',
-      version: pjson.version,
-      exec: process.argv,
-      cwd: process.cwd(),
-      waitPids: [ process.pid ],
-      appDir: path.dirname(app.getPath('exe')),
-      tempDir: path.join(app.getPath('temp'), 'slobs-updater'),
-      cacheDir: app.getPath('userData'),
-      versionFileName: `${releaseChannel}.json`
-    };
+  //   if (
+  //     !process.argv.includes('--skip-update') &&
+  //     ((process.env.NODE_ENV === 'production') || process.env.SLOBS_FORCE_AUTO_UPDATE)) {
+  //   const updateInfo = {
+  //     baseUrl: 'https://slobs-cdn.streamlabs.com',
+  //     version: pjson.version,
+  //     exec: process.argv,
+  //     cwd: process.cwd(),
+  //     waitPids: [ process.pid ],
+  //     appDir: path.dirname(app.getPath('exe')),
+  //     tempDir: path.join(app.getPath('temp'), 'slobs-updater'),
+  //     cacheDir: app.getPath('userData'),
+  //     versionFileName: `${releaseChannel}.json`
+  //   };
 
-    log(updateInfo);
-    bootstrap(updateInfo).then((updating) => {
-      if (updating) {
-        log('Closing for update...');
-        app.exit();
-      } else {
-        startApp();
-      }
-    });
-  } else {
+  //   log(updateInfo);
+  //   bootstrap(updateInfo).then((updating) => {
+  //     if (updating) {
+  //       log('Closing for update...');
+  //       app.exit();
+  //     } else {
+  //       startApp();
+  //     }
+  //   });
+  // } else {
     startApp();
-  }
+  // }
 });
 
 app.on('quit', (e, exitCode) => {

@@ -45,18 +45,18 @@ export class PerformanceService extends StatefulService<IPerformanceState> {
     electron.ipcRenderer.on(
       'performanceStatsResponse',
       (e: electron.Event, am: electron.ProcessMetric[]) => {
-        const stats: IPerformanceState = obs.NodeObs.OBS_API_getPerformanceStatistics();
-        if (stats.percentageDroppedFrames) {
-          this.droppedFramesDetected.next(stats.percentageDroppedFrames / 100);
-        }
+        // const stats: IPerformanceState = obs.NodeObs.OBS_API_getPerformanceStatistics();
+        // if (stats.percentageDroppedFrames) {
+        //   this.droppedFramesDetected.next(stats.percentageDroppedFrames / 100);
+        // }
 
-        stats.CPU += am
-          .map(proc => {
-            return proc.cpu.percentCPUUsage;
-          })
-          .reduce((sum, usage) => sum + usage);
+        // stats.CPU += am
+        //   .map(proc => {
+        //     return proc.cpu.percentCPUUsage;
+        //   })
+        //   .reduce((sum, usage) => sum + usage);
 
-        this.SET_PERFORMANCE_STATS(stats);
+        // this.SET_PERFORMANCE_STATS(stats);
       },
     );
   }
