@@ -1,7 +1,7 @@
 import { Service } from '../service';
 import { IObsListOption } from '../../components/obs/inputs/ObsInput';
 import { Observable } from 'rxjs';
-import { ISource, ISourceApi, ISourceCreateOptions, SourcesService, TSourceType } from '../sources';
+import { ISource, ISourceApi, ISourceCreateOptions, Source, SourcesService, TSourceType } from '../sources';
 import { Inject } from '../../util/injector';
 
 
@@ -25,20 +25,25 @@ class SLSourcesService extends ExternalApiResource<ISourcesServiceApi> {
     name: string,
     type: TSourceType,
     settings?: Dictionary<any>,
-    options?: ISourceCreateOptions
-  ): SLSource
-  {
+    options?: ISourceCreateOptions,
+  ): SLSource {
     const source = this.sourcesService.createSource(name, type, settings, options);
     return this.getSource(source.sourceId);
   }
 
   getSource(sourceId: string): SLSource {
     const source = this.sourcesService.getSource(sourceId);
-    return source ? sour
+    return source ? new SLSource(source) : null;
   }
 
-  removeSource(id: string): void;
-  getAvailableSourcesTypes(): TSourceType[];
+  removeSource(id: string): void {
+    this.sourcesService.removeSource(id);
+  }
+
+  getAvailableSourcesTypes(): TSourceType[] {
+    return this.sourcesService.getAvailableSourcesTypes();
+  }
+
   getAvailableSourcesTypesList(): IObsListOption<TSourceType>[];
   getSources(): ISourceApi[];
   getSourcesByName(name: string): ISourceApi[];
@@ -62,7 +67,7 @@ interface ISourceModel {
 }
 
 class SLSource extends ExternalApiResource<ISourceApi> implements ISourceModel {
-
+  constructor (private source: Source) {}
 }
 
 export interface ISourcesServiceApi {
