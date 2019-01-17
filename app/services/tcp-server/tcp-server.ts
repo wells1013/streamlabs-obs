@@ -347,9 +347,9 @@ export class TcpServerService extends PersistentStatefulService<ITcpServersSetti
         }
 
         // some requests have to be handled by TcpServerService
-        if (this.hadleTcpServerDirectives(client, request)) return;
+        if (this.handleTcpServerDirectives(client, request)) return;
 
-        const response = this.servicesManager.executeServiceRequest(request);
+        const response = this.executeRequest(request);
 
         // if response is subscription then add this subscription to client
         if (response.result && response.result._type === 'SUBSCRIPTION') {
@@ -375,6 +375,11 @@ export class TcpServerService extends PersistentStatefulService<ITcpServersSetti
     });
   }
 
+  private executeRequest(request: IJsonRpcRequest) {
+    //
+    this.servicesManager.executeServiceRequest(request);
+  }
+
   private onServiceEventHandler(event: IJsonRpcResponse<IJsonRpcEvent>) {
     // send event to subscribed clients
     Object.keys(this.clients).forEach(clientId => {
@@ -393,7 +398,7 @@ export class TcpServerService extends PersistentStatefulService<ITcpServersSetti
     return message;
   }
 
-  private hadleTcpServerDirectives(client: IClient, request: IJsonRpcRequest) {
+  private handleTcpServerDirectives(client: IClient, request: IJsonRpcRequest) {
     // handle auth
     if (request.method === 'auth' && request.params.resource === 'TcpServerService') {
       if (this.state.token && request.params.args[0] === this.state.token) {

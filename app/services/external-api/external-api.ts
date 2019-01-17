@@ -1,31 +1,42 @@
-import { Service } from '../service';
-import { IObsListOption } from '../../components/obs/inputs/ObsInput';
+import { IObsListOption, TObsFormData } from '../../components/obs/inputs/ObsInput';
 import { Observable } from 'rxjs';
-import { ISource, ISourceApi, ISourceCreateOptions, Source, SourcesService, TSourceType } from '../sources';
+import {
+  Source,
+  SourcesService,
+  TSourceType
+} from '../sources';
 import { Inject } from '../../util/injector';
+import { Service } from 'services/service';
+import { IJsonRpcRequest, IJsonRpcResponse } from '../jsonrpc';
 
+export class ExternalApi extends Service {
 
-export class ExternalApiService extends Service {
+  handleRequest(request: IJsonRpcRequest): IJsonRpcResponse<any> {
 
-  getResource() {
   }
 
+  getResource(resourceId) {
+
+  }
+
+
+
 }
 
-abstract class ExternalApiResource<TSlobsResource> {
-  abstract resource: TSlobsResource;
+
+export interface ISourceAddOptions {
+  channel?: number;
+  isTemporary?: boolean;
 }
 
-
-class SLSourcesService extends ExternalApiResource<ISourcesServiceApi> {
-
+class SLSourcesService {
   @Inject() protected sourcesService: SourcesService;
 
   createSource(
     name: string,
     type: TSourceType,
     settings?: Dictionary<any>,
-    options?: ISourceCreateOptions,
+    options?: ISourceAddOptions,
   ): SLSource {
     const source = this.sourcesService.createSource(name, type, settings, options);
     return this.getSource(source.sourceId);
@@ -36,64 +47,115 @@ class SLSourcesService extends ExternalApiResource<ISourcesServiceApi> {
     return source ? new SLSource(source) : null;
   }
 
+  getSources(): SLSource[] {
+    return this.sourcesService.getSources().map(source => this.getSource(source.sourceId));
+  }
+
   removeSource(id: string): void {
     this.sourcesService.removeSource(id);
   }
 
-  getAvailableSourcesTypes(): TSourceType[] {
-    return this.sourcesService.getAvailableSourcesTypes();
+  getAvailableSourcesTypesList(): IObsListOption<TSourceType>[] {
+    return this.sourcesService.getAvailableSourcesTypesList();
   }
 
-  getAvailableSourcesTypesList(): IObsListOption<TSourceType>[];
-  getSources(): ISourceApi[];
-  getSourcesByName(name: string): ISourceApi[];
+  getSourcesByName(name: string): SLSource[] {
+    return this.sourcesService
+      .getSourcesByName(name)
+      .map(source => this.getSource(source.sourceId));
+  }
 
   /**
    * creates a source from a file
    * source type depends on the file extension
    */
-  addFile(path: string): ISourceApi;
-  suggestName(name: string): string;
-  showSourceProperties(sourceId: string): void;
-  showShowcase(): void;
-  showAddSource(sourceType: TSourceType): void;
-  sourceAdded: Observable<ISource>;
-  sourceUpdated: Observable<ISource>;
-  sourceRemoved: Observable<ISource>;
+  addFile(path: string): SLSource {
+    return this.getSource(this.sourcesService.addFile(path).sourceId);
+  }
+
+  showSourceProperties(sourceId: string): void {
+    return this.sourcesService.showSourceProperties(sourceId);
+  }
+
+  showShowcase(): void {
+    return this.sourcesService.showShowcase();
+  }
+
+  showAddSource(sourceType: TSourceType): void {
+    return this.sourcesService.showAddSource(sourceType);
+  }
+
+  get sourceAdded(): Observable<ISourceModel> {
+    return this.sourcesService.sourceAdded;
+  }
+
+  get sourceUpdated(): Observable<ISourceModel> {
+    return this.sourcesService.sourceUpdated;
+  }
+
+  get sourceRemoved(): Observable<ISourceModel> {
+    return this.sourcesService.sourceUpdated;
+  }
 }
 
 interface ISourceModel {
-
+  sourceId: string;
+  name: string;
+  type: TSourceType;
+  audio: boolean;
+  video: boolean;
+  async: boolean;
+  muted: boolean;
+  width: number;
+  height: number;
+  doNotDuplicate: boolean;
+  channel?: number;
 }
 
-class SLSource extends ExternalApiResource<ISourceApi> implements ISourceModel {
-  constructor (private source: Source) {}
-}
+class SLSource implements ISourceModel {
+  sourceId: string;
+  name: string;
+  type: TSourceType;
+  audio: boolean;
+  video: boolean;
+  async: boolean;
+  muted: boolean;
+  width: number;
+  height: number;
+  doNotDuplicate: boolean;
+  channel?: number;
 
-export interface ISourcesServiceApi {
-  createSource(
-    name: string,
-    type: TSourceType,
-    settings?: Dictionary<any>,
-    options?: ISourceCreateOptions
-  ): ISourceApi;
-  removeSource(id: string): void;
-  getAvailableSourcesTypes(): TSourceType[];
-  getAvailableSourcesTypesList(): IObsListOption<TSourceType>[];
-  getSources(): ISourceApi[];
-  getSource(sourceId: string): ISourceApi;
-  getSourcesByName(name: string): ISourceApi[];
+  constructor(private source: Source) {}
 
-  /**
-   * creates a source from a file
-   * source type depends on the file extension
-   */
-  addFile(path: string): ISourceApi;
-  suggestName(name: string): string;
-  showSourceProperties(sourceId: string): void;
-  showShowcase(): void;
-  showAddSource(sourceType: TSourceType): void;
-  sourceAdded: Observable<ISource>;
-  sourceUpdated: Observable<ISource>;
-  sourceRemoved: Observable<ISource>;
+  updateSettings(settings: Dictionary<any>): void {
+    this.source.updateSettings(settings);
+  }
+
+  getSettings(): Dictionary<any> {
+    return this.source.getSettings();
+  }
+
+  getPropertiesFormData(): TObsFormData {
+    return this.source.getPropertiesFormData();
+  }
+
+  setPropertiesFormData(properties: TObsFormData): void {
+    return this.source.setPropertiesFormData(properties);
+  }
+
+  hasProps(): boolean {
+    return this.source.hasProps();
+  }
+
+  setName(newName: string): void {
+    return this.source.setName(newName);
+  }
+
+  refresh(): void {
+    this.source.refresh();
+  }
+
+  getModel(): ISourceModel {
+    return this.source.getModel();
+  }
 }
