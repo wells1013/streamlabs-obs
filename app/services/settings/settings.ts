@@ -165,6 +165,7 @@ export class SettingsService extends StatefulService<ISettingsState>
     // We hide the encoder preset and settings if the optimized ones are in used
     if (
       categoryName === 'Output' &&
+
       this.videoEncodingOptimizationService.state.useOptimizedProfile
     ) {
       const encoder = obsEncoderToEncoder(

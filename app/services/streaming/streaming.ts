@@ -105,12 +105,16 @@ export class StreamingService extends StatefulService<IStreamingServiceState>
     return this.state;
   }
 
-  get isStreaming() {
+  get isStreaming(): boolean {
     return this.state.streamingStatus !== EStreamingState.Offline;
   }
 
-  get isRecording() {
+  get isRecording(): boolean {
     return this.state.recordingStatus !== ERecordingState.Offline;
+  }
+
+  get isIdle(): boolean {
+    return !this.isRecording && !this.isStreaming;
   }
 
   /**
