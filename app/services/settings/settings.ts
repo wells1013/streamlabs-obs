@@ -24,7 +24,8 @@ import {
 import { VideoEncodingOptimizationService } from 'services/video-encoding-optimizations';
 import { ISettingsServiceApi, ISettingsSubCategory } from './settings-api';
 import { PlatformAppsService } from 'services/platform-apps';
-import { EDeviceType } from '../hardware';
+import { EDeviceType } from 'services/hardware';
+import { StreamingService } from 'services/streaming';
 
 export interface ISettingsState {
   General: {
@@ -85,6 +86,7 @@ export class SettingsService extends StatefulService<ISettingsState>
   @Inject() private appService: AppService;
   @Inject() private platformAppsService: PlatformAppsService;
   @Inject() private streamEncoderSettingsService: StreamEncoderSettingsService;
+  @Inject() private streamingService: StreamingService;
 
   @Inject()
   private videoEncodingOptimizationService: VideoEncodingOptimizationService;
@@ -165,7 +167,7 @@ export class SettingsService extends StatefulService<ISettingsState>
     // We hide the encoder preset and settings if the optimized ones are in used
     if (
       categoryName === 'Output' &&
-
+      !this.streamingService.isIdle &&
       this.videoEncodingOptimizationService.state.useOptimizedProfile
     ) {
       const encoder = obsEncoderToEncoder(
@@ -368,13 +370,3 @@ export class SettingsService extends StatefulService<ISettingsState>
         } else {
           source.setName(displayName);
           source.updateSettings({ device_id: deviceForm.value });
-        }
-      }
-    });
-  }
-
-  @mutation()
-  SET_SETTINGS(settingsData: ISettingsState) {
-    this.state = Object.assign({}, this.state, settingsData);
-  }
-}
