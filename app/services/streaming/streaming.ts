@@ -113,6 +113,10 @@ export class StreamingService extends StatefulService<IStreamingServiceState>
     return this.state.recordingStatus !== ERecordingState.Offline;
   }
 
+  get isIdle(): boolean {
+    return !this.isRecording && !this.isStreaming;
+  }
+
   /**
    * @deprecated Use toggleStreaming instead
    */
