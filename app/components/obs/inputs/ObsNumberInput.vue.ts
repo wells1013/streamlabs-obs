@@ -21,7 +21,7 @@ class ObsNumberInput extends ObsInput<IObsNumberInputValue> {
       min: this.value.minVal,
       max: this.value.maxVal,
       disabled: this.value.enabled === false,
-      isInteger: false,
+      isInteger: true,
     };
   }
 
