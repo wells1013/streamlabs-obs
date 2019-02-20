@@ -28,7 +28,7 @@ const semver = require('semver');
 const windowStateKeeper = require('electron-window-state');
 const obs = require('obs-studio-node');
 const pid = require('process').pid;
-const crashHandler = require('crash-handler');
+// const crashHandler = require('crash-handler');
 const electronLog = require('electron-log');
 
 if (process.argv.includes('--clearCacheDir')) {
@@ -87,8 +87,8 @@ function openDevTools() {
 function startApp() {
   const isDevMode = (process.env.NODE_ENV !== 'production') && (process.env.NODE_ENV !== 'test');
 
-  crashHandler.startCrashHandler(app.getAppPath());
-  crashHandler.registerProcess(pid, false);
+  // crashHandler.startCrashHandler(app.getAppPath());
+  // crashHandler.registerProcess(pid, false);
 
   { // Initialize obs-studio-server
     // Set up environment variables for IPC.
@@ -309,7 +309,8 @@ app.setAsDefaultProtocolClient('slobs');
 
 
 // This ensures that only one copy of our app can run at once.
-const shouldQuit = app.makeSingleInstance(argv => {
+app.requestSingleInstanceLock();
+app.on('second-instance', (event, argv) => {
   // Check for protocol links in the argv of the other process
   argv.forEach(arg => {
     if (arg.match(/^slobs:\/\//)) {
@@ -326,10 +327,6 @@ const shouldQuit = app.makeSingleInstance(argv => {
     mainWindow.focus();
   }
 });
-
-if (shouldQuit) {
-  app.exit();
-}
 
 app.on('ready', () => {
     if (
