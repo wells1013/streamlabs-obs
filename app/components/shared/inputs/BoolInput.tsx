@@ -10,7 +10,7 @@ export default class BoolInput extends BaseInput<boolean, { name: string; title:
     this.emitInput(!this.value, e);
   }
 
-  render(h: Function) {
+  render() {
     return (
       <div class="input-wrapper" data-role="input" data-type="bool" data-name={this.options.name}>
         <div class="checkbox" onClick={this.handleClick}>

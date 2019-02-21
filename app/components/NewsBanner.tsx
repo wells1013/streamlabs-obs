@@ -1,6 +1,6 @@
-import Vue from 'vue';
 import { shell } from 'electron';
 import emojione from 'emojione';
+import TsxComponent from 'components/tsx-component';
 import { AnnouncementsService } from 'services/announcements';
 import { Inject } from 'util/injector';
 import { Component } from 'vue-property-decorator';
@@ -10,7 +10,7 @@ import cx from 'classnames';
 import styles from './NewsBanner.m.less';
 
 @Component({})
-export default class NewsBanner extends Vue {
+export default class NewsBanner extends TsxComponent<{}> {
   @Inject() announcementsService: AnnouncementsService;
   @Inject() navigationService: NavigationService;
 
@@ -50,7 +50,7 @@ export default class NewsBanner extends Vue {
     }
   }
 
-  render(h: Function) {
+  render() {
     return (
       <div>
         <div
