@@ -260,6 +260,9 @@ export class WindowsService extends StatefulService<IWindowsState> {
       width: (options.size && options.size.width) || 400,
       height: (options.size && options.size.height) || 400,
       title: options.title || 'New Window',
+      webPreferences: {
+        nodeIntegration: true,
+      },
     }));
 
     newWindow.setMenu(null);

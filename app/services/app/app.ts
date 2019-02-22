@@ -32,7 +32,7 @@ import { ObsUserPluginsService } from 'services/obs-user-plugins';
 import { IncrementalRolloutService } from 'services/incremental-rollout';
 import { $t } from '../i18n';
 
-const crashHandler = window['require']('crash-handler');
+// const crashHandler = window['require']('crash-handler');
 
 interface IAppState {
   loading: boolean;
@@ -84,7 +84,7 @@ export class AppService extends StatefulService<IAppState> {
   @track('app_start')
   async load() {
     this.START_LOADING();
-    crashHandler.registerProcess(this.pid, false);
+    // crashHandler.registerProcess(this.pid, false);
 
     await this.obsUserPluginsService.initialize();
 
@@ -98,7 +98,7 @@ export class AppService extends StatefulService<IAppState> {
       const message = apiInitErrorResultToMessage(apiResult);
       showDialog(message);
 
-      crashHandler.unregisterProcess(this.pid);
+      // crashHandler.unregisterProcess(this.pid);
       electron.ipcRenderer.send('shutdownComplete');
 
       return;
@@ -158,7 +158,7 @@ export class AppService extends StatefulService<IAppState> {
   @track('app_close')
   private shutdownHandler() {
     this.START_LOADING();
-    obs.NodeObs.StopCrashHandler();
+    // obs.NodeObs.StopCrashHandler();
 
     this.crashReporterService.beginShutdown();
 

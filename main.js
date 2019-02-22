@@ -163,7 +163,13 @@ function startApp() {
     show: false,
     frame: false,
     title: 'Streamlabs OBS',
+    webPreferences: {
+      nodeIntegration: true,
+      webviewTag: true
+    }
   });
+
+  mainWindow.openDevTools({ mode: 'detach' });
 
   mainWindowState.manage(mainWindow);
 
@@ -215,7 +221,10 @@ function startApp() {
   // Pre-initialize the child window
   childWindow = new BrowserWindow({
     show: false,
-    frame: false
+    frame: false,
+    webPreferences: {
+      nodeIntegration: true
+    }
   });
 
   childWindow.setMenu(null);
